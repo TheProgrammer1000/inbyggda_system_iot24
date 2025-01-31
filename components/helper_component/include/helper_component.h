@@ -1,6 +1,8 @@
 #pragma once
 
 
-namespace inbyggda_iot24 {
+
+
+namespace helper_component {
     int func(void);
 }
