@@ -4,10 +4,10 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-set(set(EXTRA_COMPONENT_DIRS 
-        "../../../components/watch_dog_interrupts"
-    )
+set(EXTRA_COMPONENT_DIRS 
+    
 )
+
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(ovning_3_watchDog)
