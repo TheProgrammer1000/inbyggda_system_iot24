@@ -44,19 +44,27 @@ extern "C" void app_main(void)
 
     my_wdt_to_task::wdt_task_init();
 
+    gpio_set_level(GPIO_NUM_4, 1);
+    
+    TickType_t startTick = xTaskGetTickCount();
+
+
+    int gpio_3_level = 0;
+
     while (1) {
 
-
         my_wdt_to_task::wdt_task_feeed_watchdog();
-        if(gpio_interrupt_triggered) {
-            PRINTF_COLOR(ANSI_BLUE, "INTERRUPT WAS FIRED!" NEW_LINE);
-            gpio_interrupt_triggered = false;
-        }
 
-        // gpio_set_level(GPIO_NUM_4, 1);
-        // vTaskDelay(30 / portTICK_PERIOD_MS);
-        // gpio_set_level(GPIO_NUM_4, 0);
-        // vTaskDelay(20 / portTICK_PERIOD_MS);
+
+        // uppslaget gör så att interrupten körs igen
+        if(gpio_interrupt_triggered) {
+            TickType_t tickDiffrence = xTaskGetTickCount() - startTick;
+
+            if(tickDiffrence >= pdMS_TO_TICKS(30)) {
+                PRINTF_COLOR(ANSI_BLUE, "VI HEREE" NEW_LINE);
+                gpio_interrupt_triggered = false;
+            }
+        }
     }
 
     my_wdt_to_task::wdt_task_delete();
