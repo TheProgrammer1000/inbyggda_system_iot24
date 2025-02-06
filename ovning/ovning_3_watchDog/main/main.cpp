@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "esp_task_wdt.h"
 #include "printer.h"
 #include "driver/gpio.h"
+#include "watch_dog.h"
 
 #define WATCH_DOG_TIMEOUT 3000
 #define WATCH_DOG_CORE 0
@@ -41,42 +41,23 @@ extern "C" void app_main(void)
     gpio_isr_handler_add(GPIO_NUM_3, gpio_isr_handler_func, (void*) GPIO_NUM_3);
     gpio_dump_io_configuration(stdout, (1ULL << 3 | 1ULL << 4));
 
+
+    my_wdt_to_task::wdt_task_init();
+
     while (1) {
 
+
+        my_wdt_to_task::wdt_task_feeed_watchdog();
         if(gpio_interrupt_triggered) {
             PRINTF_COLOR(ANSI_BLUE, "INTERRUPT WAS FIRED!" NEW_LINE);
             gpio_interrupt_triggered = false;
         }
 
-        gpio_set_level(GPIO_NUM_4, 1);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        gpio_set_level(GPIO_NUM_4, 0);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // gpio_set_level(GPIO_NUM_4, 1);
+        // vTaskDelay(30 / portTICK_PERIOD_MS);
+        // gpio_set_level(GPIO_NUM_4, 0);
+        // vTaskDelay(20 / portTICK_PERIOD_MS);
     }
-    
-    
-    // watchdog task
-    // esp_task_wdt_config_t wtd_config = {
-    //     .timeout_ms = WATCH_DOG_TIMEOUT,
-    //     .idle_core_mask = WATCH_DOG_CORE,
-    //     .trigger_panic = true
-    // };
 
-    // ESP_ERROR_CHECK_WITHOUT_ABORT(esp_task_wdt_init(&wtd_config));
-    // PRINTF_GROUP_SUCCESFUL("Successfully configured watchDog" NEW_LINE);
-
-    // ESP_ERROR_CHECK_WITHOUT_ABORT(esp_task_wdt_add(NULL));
-    // PRINTF_GROUP_SUCCESFUL("Successfully added watchDog to task" NEW_LINE);
-
-
-    // // behöver sparka på watch_dogen för att den inte ska komma till input
-  
-    // while (1)
-    // {
-    //     esp_task_wdt_reset();
-    //     vTaskDelay(20);
-    // }
-    
-    // ESP_ERROR_CHECK(esp_task_wdt_delete(NULL));
-    // PRINTF_GROUP_SUCCESFUL("Unsubscribed from TWDT\n");
+    my_wdt_to_task::wdt_task_delete();
 }
