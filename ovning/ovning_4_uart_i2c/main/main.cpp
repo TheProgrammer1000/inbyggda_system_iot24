@@ -4,6 +4,7 @@
 #include "esp_check.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "printer.h"
 
 #define UART_PIN_RECIEVE GPIO_NUM_3
 #define UART_PIN_TRANSMITT GPIO_NUM_11
@@ -30,8 +31,8 @@ extern "C" void app_main(void)
 
     // inita kön
     QueueHandle_t uart_queue;
-    uart_event_t event;
-
+    
+    
     my_uart_config.source_clk = UART_SCLK_DEFAULT;
     my_uart_config.data_bits = UART_DATA_8_BITS;    // Data vi sänder är i 1 byte
     my_uart_config.baud_rate = 115200;
@@ -47,72 +48,102 @@ extern "C" void app_main(void)
 
     TickType_t sentTimer = xTaskGetTickCount();
 
+    PRINTF_COLOR(ANSI_MAGENTA, "sentTimer: %ld" NEW_LINE, sentTimer);
+
       // Read data from UART.
-    uint8_t data[UART_RECIEVE_BUFFER_SIZE];      // data som ska recievas
+    uint8_t data[UART_RECIEVE_BUFFER_SIZE + 1];       // data som ska recievas
     int length = 0;
    
     ESP_LOGI(TAG, "ms_to_tick %lu, tick_to_ms %lu", pdMS_TO_TICKS(30), pdTICKS_TO_MS(30));
 
 
+    TickType_t startTimer = xTaskGetTickCount();
+
+    uart_event_t recievedEvent;
+
+
     // Sen vi hade sentTimer blir våran elapsedTime
     while(1) {
-        TickType_t elapsedtime = xTaskGetTickCount() - sentTimer;
+        
+            TickType_t elapsedTimeSinceStart = xTaskGetTickCount() - startTimer;
 
-        if(elapsedtime > pdMS_TO_TICKS(SEND_UART_PERIOD)) {
-            sentTimer +=pdMS_TO_TICKS(SEND_UART_PERIOD);
-            char* test_str = "Hello World!";
-            int byteSent = uart_write_bytes(uart_num, (const char*)test_str, strlen(test_str));
 
-            if(byteSent < 0) {
-                ESP_LOGE(TAG, "ERROR writing uart");
-            }
-            else if(byteSent > 0) {
-                ESP_LOGI(TAG, "Send %d bytes on uart", byteSent);
-            }
-            else {
-                ESP_LOGI(TAG, "Sent no bytes on uart");
-            }
-        }
-       
-        // RECIEVE
-        ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_num, (size_t*)&length)); 
-        //ESP_LOGI(TAG, "Bytes in buffer %d", length);
 
-        if(length > UART_RECIEVE_BUFFER_SIZE) {
-            length = uart_read_bytes(uart_num, data, UART_RECIEVE_BUFFER_SIZE, pdMS_TO_TICKS(RECIEVE_WAIT_UART));
+            if(elapsedTimeSinceStart > pdMS_TO_TICKS(SEND_UART_PERIOD)) {
+
+                startTimer += pdMS_TO_TICKS(SEND_UART_PERIOD);
+                char* test_str = "Hello World!";
+                int byteSent = uart_write_bytes(uart_num, (const char*)test_str, strlen(test_str));
+
+                if(byteSent < 0) {
+                    ESP_LOGE(TAG, "ERROR writing uart");
+                    vTaskDelay(pdMS_TO_TICKS(2000));
+                }
+                else if(byteSent > 0) {
+                    ESP_LOGI(TAG, "Send %d bytes on uart", byteSent);
+                    vTaskDelay(pdMS_TO_TICKS(30));
+                }
+                else {
+                    ESP_LOGI(TAG, "Sent no bytes on uart");
+                    vTaskDelay(pdMS_TO_TICKS(30));
+                }
+            }
+
+
             
-            if(length < 0) {
-                ESP_LOGE(TAG, "ERROR recieving uart");
-                vTaskDelay(pdMS_TO_TICKS(2000));
-            }
-            else if(length > 0) {
-                data[length] = 0; // sista byten gör den null terminated
-                ESP_LOGI(TAG, "Recieve %d bytes on uart %s", length, data);
-            }
-            else {
-                ESP_LOGI(TAG, "Recieve no bytes on uart");
-                vTaskDelay(pdMS_TO_TICKS(30));
-            }
-        } else if(length > 0) {
-            length = uart_read_bytes(uart_num, data, length, pdMS_TO_TICKS(RECIEVE_WAIT_UART));
+            //PRINTF_COLOR(ANSI_MAGENTA, "elapsedTimeSinceStart: %ld" NEW_LINE, elapsedTimeSinceStart);
+            
+        /*
+                UART_BREAK,             /*!< UART break event*/
+        //UART_BUFFER_FULL,       /*!< UART RX buffer full event*/
+        //UART_FIFO_OVF,          /*!< UART FIFO overflow event*/
+        //UART_FRAME_ERR,         /*!< UART RX frame error event*/
+        //UART_PARITY_ERR,        /*!< UART RX parity event*/
+        //UART_DATA_BREAK,        /*!< UART TX data and break event*/
+        //UART_PATTERN_DET,       /*!< UART pattern detected */
+        
+        
 
-            if(length < 0) {
-                ESP_LOGE(TAG, "ERROR recieving uart");
-                vTaskDelay(pdMS_TO_TICKS(2000));
+        if(xQueueReceive(uart_queue, &recievedEvent, pdMS_TO_TICKS(30)) == pdTRUE) {
+            ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_num, (size_t*)&length));
+
+            int bytesFromBuffer = uart_read_bytes(uart_num, &data, length, pdMS_TO_TICKS(30));
+
+            if(bytesFromBuffer < 0) {
+                ESP_LOGE(TAG, "Failed to read from buffer");
             }
-            else if(length > 0) {
-                data[length] = 0;
-                ESP_LOGI(TAG, "Recieve %d bytes on uart %s", length, data);
+            else if(bytesFromBuffer > UART_RECIEVE_BUFFER_SIZE)  {
+                bytesFromBuffer = uart_read_bytes(uart_num, &data, UART_RECIEVE_BUFFER_SIZE, pdMS_TO_TICKS(30));
+                if(bytesFromBuffer < 0) {
+                    ESP_LOGE(TAG, "Error reading from Buffer");
+                }
+                else if(bytesFromBuffer > 0) {
+                    switch (recievedEvent.type)
+                    {
+                    case UART_DATA:
+                            PRINTF_COLOR(ANSI_MAGENTA, "Receieved %d bytes and text: %s", bytesFromBuffer, (char*) data);
+                        break;
+                    
+                    default:
+                        break;
+                    }
+
+                }
             }
             else {
-                ESP_LOGI(TAG, "Recieve no bytes on uart");
-                vTaskDelay(pdMS_TO_TICKS(30));
+                switch (recievedEvent.type)
+                {
+                case UART_DATA:
+                        PRINTF_COLOR(ANSI_MAGENTA, "Receieved %d bytes and text: %s", bytesFromBuffer, (char*) data);
+                    break;
+                
+                default:
+                    break;
+                }
             }
-        }
+        }  
         else {
-            // Kommer här om finns ingeting att läsa
-            //ESP_LOGI(TAG, "No msg got!\n");
-            vTaskDelay(pdMS_TO_TICKS(30));
+            PRINTF_GROUP_FAILED("Something went wrong with xQueueRecieve!" NEW_LINE);
         }
     }
 }
