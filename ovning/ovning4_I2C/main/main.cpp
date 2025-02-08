@@ -36,24 +36,4 @@ extern "C" void app_main(void)
 
     ESP_ERROR_CHECK(i2c_master_bus_add_device(masterBus_handler, &i2cDeviceConfig, &masterBus_deviceHandler));
     PRINTF_COLOR(ANSI_MAGENTA, "Successfully configuered master buss!" NEW_LINE);
-
-
-    // i2c_slave_config_t slaveConfig;
-    // i2c_slave_dev_handle_t slaveDeviceHandler;
-    // slaveConfig.i2c_port = - 1;
-    // slaveConfig.sda_io_num = GPIO_NUM_6;
-    // slaveConfig.scl_io_num = GPIO_NUM_7;
-    // slaveConfig.clk_source = I2C_CLK_SRC_DEFAULT;
-    // slaveConfig.slave_addr = 0x58,
-    // slaveConfig.intr_priority = 0;
-    // slaveConfig.addr_bit_len = I2C_ADDR_BIT_LEN_7;
-    // slaveConfig.send_buf_depth = 256;
-
-    //ESP_ERROR_CHECK(i2c_new_slave_device(&slaveConfig, &slaveDeviceHandler));
-    //PRINTF_COLOR(ANSI_MAGENTA, "Successfully configuered master and slave!");
-    
-
-
-
-
 }
