@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../components/printer"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"complex": "cpp",
+			"format": "cpp"
+		}
+	}
+}
