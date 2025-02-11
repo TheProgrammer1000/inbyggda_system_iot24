@@ -12,7 +12,10 @@ extern "C" void app_main(void)
     while (1)
     {
         button1.update();
+
+        if(button1.buttonPressed == true) {
+            printf("Knappen nedtryck!!!");
+        }
         vTaskDelay(pdMS_TO_TICKS(20));
     }
-    
 }

@@ -15,47 +15,38 @@ namespace my_button {
         button_config.pull_up_en = pull_up_en;
         button_config.pull_down_en = pull_down_en;
         button_config.intr_type = GPIO_INTR_POSEDGE;
+
+        this->buttonPressed = false;
         
         ESP_ERROR_CHECK(gpio_config(&button_config));
 
         printf("Succesfully configured button\n");
     }
 
-
-    /*
-        Debounce krävs
-        10 milisekunders period eller snabbare (Gäller alla komponenter)
-    
-    */
     void button::update() {
         gpio_num_t gpio_pin_number = (gpio_num_t)this->pin_bit_mask;
-        // static bool buttonPressed = false;
-        // static TickType_t startTickButton;
-
         int gpio_level = gpio_get_level(gpio_pin_number);
 
+        if(gpio_level == 1 && buttonPressed == false) {
+            
+            this->buttonPressed = true;
+            this->startTickButton = xTaskGetTickCount();
+        }
+        if(buttonPressed == true) {
+            TickType_t timeSincePressed = xTaskGetTickCount() - startTickButton;
 
-
-        //if(gpio_level == 1 && buttonPressed == false) {
-        //     buttonPressed = true;
-        //     startTickButton = xTaskGetTickCount();
-        // }
-        // if(buttonPressed == true) {
-        //     TickType_t timeSincePressed = xTaskGetTickCount() - startTickButton;
-
-        //     if(timeSincePressed >= pdMS_TO_TICKS(30)) {
-        //         printf("Button pressed!\n");
-        //         buttonPressed = false;
-
-        //         startTickButton = xTaskGetTickCount();
-        //     }
-        // }
+            if(timeSincePressed >= pdMS_TO_TICKS(10)) {
+                printf("Button pressed!\n");
+                this->buttonPressed = false;
+                this->startTickButton = xTaskGetTickCount();
+            }
+        }
     }
 
 
     // får inte läsa pinnen, måste ta ett redan utläst värde
     bool isPressed() {
-
+        return false;
     }
 }
 

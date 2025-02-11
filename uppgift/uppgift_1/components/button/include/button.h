@@ -24,7 +24,8 @@ namespace my_button {
             gpio_pulldown_t pull_down_en;   /*!< GPIO pull-down                                       */
             gpio_int_type_t intr_type;      /*!< GPIO interrupt type         */ 
 
-            bool isPressed;
+            bool buttonPressed;
+            TickType_t startTickButton;
 
             void init(uint64_t pin, gpio_mode_t mode, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type);
             void setupInterrupt();
