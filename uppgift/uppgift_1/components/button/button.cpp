@@ -36,7 +36,7 @@ namespace my_button {
             TickType_t timeSincePressed = xTaskGetTickCount() - startTickButton;
 
             if(timeSincePressed >= pdMS_TO_TICKS(10)) {
-                printf("Button pressed!\n");
+                printf("Button Pressed!\n");
                 this->buttonPressed = false;
                 this->startTickButton = xTaskGetTickCount();
             }
@@ -45,8 +45,13 @@ namespace my_button {
 
 
     // får inte läsa pinnen, måste ta ett redan utläst värde
-    bool isPressed() {
-        return false;
+    bool button::isPressed() {
+        return this->buttonPressed;
     }
+
+    void button::setOnPressed(void(*onPressed)(int pin)) {
+      
+    }    
+   
 }
 
