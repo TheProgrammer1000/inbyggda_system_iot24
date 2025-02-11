@@ -26,9 +26,11 @@ namespace my_button {
 
             bool buttonPressed;
             TickType_t startTickButton;
+            void (*onPressedFuncPointer)(int) = nullptr;
 
             void init(uint64_t pin, gpio_mode_t mode, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type);
             bool isPressed();
+            void onPressed(int pin);
             void setOnPressed(void(*onPressed)(int pin));
             void setupInterrupt();
             void update();
