@@ -2,20 +2,24 @@
 #include "button.h"
 
 namespace my_button {
-    button::button(uint64_t pin_bit_mask, gpio_mode_t mode, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type) : pin_bit_mask(pin_bit_mask), mode(mode), pull_up_en(pull_up_en), pull_down_en(pull_down_en), intr_type(intr_type)
+    button::button(int pin, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type) : pin(pin), pull_up_en(pull_up_en), pull_down_en(pull_down_en), intr_type(intr_type)
     {
+        gpio_mode_t mode = GPIO_MODE_INPUT;
 
+        this->onPressed_cb = NULL;
+        this->onRealsed_cb = NULL;
     };
 
-    void button::init(uint64_t pin, gpio_mode_t mode, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type){
+    void button::init(){
         gpio_config_t button_config;
 
-        button_config.pin_bit_mask = pin;
+        button_config.pin_bit_mask = (uint64_t)pin;
         button_config.mode = mode;
         button_config.pull_up_en = pull_up_en;
         button_config.pull_down_en = pull_down_en;
-        button_config.intr_type = GPIO_INTR_POSEDGE;
+        button_config.intr_type = intr_type;
 
+        this->buttonRealsed = false;
         this->buttonPressed = false;
         
         ESP_ERROR_CHECK(gpio_config(&button_config));
@@ -24,22 +28,26 @@ namespace my_button {
     }
 
     void button::update() {
-        gpio_num_t gpio_pin_number = (gpio_num_t)this->pin_bit_mask;
+        gpio_num_t gpio_pin_number = (gpio_num_t)this->pin;
         int gpio_level = gpio_get_level(gpio_pin_number);
 
-        if(gpio_level == 1 && buttonPressed == false) {
+        if(gpio_level == 1 && buttonRealsed == false) {
             
-            this->buttonPressed = true;
+            this->buttonRealsed = true;
             this->startTickButton = xTaskGetTickCount();
-        }
-        if(buttonPressed == true) {
+
+            this->onPressed(this->pin);
+            
+        } 
+
+        if(gpio_level == 0 && buttonRealsed == true) {
             TickType_t timeSincePressed = xTaskGetTickCount() - startTickButton;
 
-            if(timeSincePressed >= pdMS_TO_TICKS(10)) {
-                
+            if(timeSincePressed >= pdMS_TO_TICKS(DEBOUNCE_DELAY)) {
+                this->onRealsed(this->pin);     
 
-                printf("Button Pressed!\n");
-                this->buttonPressed = false;
+
+                this->buttonRealsed = false;
                 this->startTickButton = xTaskGetTickCount();
             }
         }
@@ -48,16 +56,28 @@ namespace my_button {
 
     // får inte läsa pinnen, måste ta ett redan utläst värde
     bool button::isPressed() {
-        return this->buttonPressed;
+        return this->buttonRealsed;
     }
 
     void button::onPressed(int pin) {
-
+        if(onPressed_cb != NULL) {
+            onPressed_cb(pin);
+        }
     }
 
-    void button::setOnPressed(void(*onPressed)(int pin)) {
-      
+    void button::onRealsed(int pin) {
+        if(onRealsed_cb != NULL) {
+            onRealsed_cb(pin);
+        }
+    }
+
+    // parameter
+    void button::setOnPressed(void(*cb)(int pin)) {
+        onPressed_cb = cb;
     }    
-   
+    
+    void button::setOnRealesed(void(*cb)(int pin)) {
+        onRealsed_cb = cb;
+    }   
 }
 
