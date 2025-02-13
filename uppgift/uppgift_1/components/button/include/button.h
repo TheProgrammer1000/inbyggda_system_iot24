@@ -15,16 +15,31 @@
 namespace my_button {
     class button {
         private:
-         
-
-        public:
-            button(int pin, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type);
-            
             int pin;          /*!< GPIO pin: set with bit mask, each bit maps to a GPIO */
             gpio_mode_t mode;               /*!< GPIO mode: set input/output mode                     */
             gpio_pullup_t pull_up_en;       /*!< GPIO pull-up                                         */
             gpio_pulldown_t pull_down_en;   /*!< GPIO pull-down                                       */
             gpio_int_type_t intr_type;      /*!< GPIO interrupt type         */ 
+
+         
+
+        public:
+            button(int pin, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type);
+            
+            // Getters
+            int get_pin(void) { return pin; }
+            gpio_mode_t get_mode(void) { return mode; }
+            gpio_pullup_t get_pull_up_en(void) { return pull_up_en; }
+            gpio_pulldown_t get_pull_down_en(void) { return pull_down_en; }
+            gpio_int_type_t get_intr_type(void) { return intr_type; }
+
+            // Setters
+            void set_pin(int value) { pin = value; }
+            void set_mode(gpio_mode_t value) { mode = value; }
+            void set_pull_up_en(gpio_pullup_t value) { pull_up_en = value; }
+            void set_pull_down_en(gpio_pulldown_t value) { pull_down_en = value; }
+            void set_intr_type(gpio_int_type_t value) { intr_type = value; }
+
 
             typedef void (*onPressed_t)(int pin);
 
@@ -46,6 +61,8 @@ namespace my_button {
             void setupInterrupt();
             
             void update();
+
+
         
             
             

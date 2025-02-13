@@ -28,7 +28,7 @@ namespace my_button {
     }
 
     void button::update() {
-        gpio_num_t gpio_pin_number = (gpio_num_t)this->pin;
+        gpio_num_t gpio_pin_number = (gpio_num_t)this->get_pin();
         int gpio_level = gpio_get_level(gpio_pin_number);
 
         if(gpio_level == 1 && buttonRealsed == false) {
@@ -36,16 +36,20 @@ namespace my_button {
             this->buttonRealsed = true;
             this->startTickButton = xTaskGetTickCount();
 
-            this->onPressed(this->pin);
-            
+            if(this->onPressed_cb != NULL) {
+                this->onPressed_cb(this->get_pin());
+            }
         } 
 
         if(gpio_level == 0 && buttonRealsed == true) {
             TickType_t timeSincePressed = xTaskGetTickCount() - startTickButton;
 
             if(timeSincePressed >= pdMS_TO_TICKS(DEBOUNCE_DELAY)) {
-                this->onRealsed(this->pin);     
-
+                  
+                if(this->onRealsed_cb != NULL) {
+                    this->onRealsed_cb(this->get_pin());
+                } 
+                
 
                 this->buttonRealsed = false;
                 this->startTickButton = xTaskGetTickCount();

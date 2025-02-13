@@ -1,35 +1,48 @@
 #include <stdio.h>
 #include "button.h"
+#include "adc_one.h"
 
 
-void myFunctionOnRealsed(int pin) {
-    printf("Realsed pin: %d\n", pin);        
-}
 
-void myFunctionPressed(int pin) {
-    printf("Pressed from pin: %d\n", pin);        
+    /*
+            typedef void (*onThreshold_t)(int pin, int value);
+            onThreshold_t onThreshold_cb;
+
+            void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
+    
+    */
+
+
+
+
+void myFunc(int pin, int value) {
+    printf("Hello!!\n");
 }
 
 
 
 extern "C" void app_main(void)
-{
-    my_button::button button1(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_POSEDGE);
-    my_button::button button2(2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_POSEDGE);
+{  
+
     
-    button1.init();
-    button2.init();
+    //my_button::button button1(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE);
+    //button1.setOnPressed(myFunc);
 
-    button1.setOnPressed(myFunctionPressed);
+    adcOneMode::adc myAdc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
+    
+    myAdc1.init();
 
-    button2.setOnPressed(myFunctionPressed);
-    //button1.setOnRealesed(myFunctionOnRealsed);
+
+    //myAdc1.setOnThreshold();
+
+
 
     while (1)
     {
-        button1.update(); 
-        button2.update();  
-
+        //button1.update();
+        //myAdc1.update();
+        myAdc1.update();
+        
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
