@@ -51,7 +51,7 @@ namespace myBinaryLed
          * - LEDC_DECONFIGURE =      @b FALSE
          *
          */
-        binaryLed(int gpioNumber, ledc_channel_t channel, uint32_t dutyRange, ledc_intr_type_t interruptType);
+        binaryLed(int gpioNumber, ledc_channel_t channel, ledc_timer_bit_t dutyResolution, uint32_t dutyRange, ledc_intr_type_t interruptType);
 
         // Getters  Timer
         ledc_mode_t getSpeedMode() const { return speedMode; }

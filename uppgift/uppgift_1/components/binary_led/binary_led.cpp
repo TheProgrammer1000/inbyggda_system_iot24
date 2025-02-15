@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include "binary_led.h"
 namespace myBinaryLed {
-    binaryLed::binaryLed(int gpioNumber, ledc_channel_t channel, uint32_t dutyRange, ledc_intr_type_t interruptType){
+    binaryLed::binaryLed(int gpioNumber, ledc_channel_t channel,  ledc_timer_bit_t dutyResolution, uint32_t dutyRange, ledc_intr_type_t interruptType){
         
         this->timerNumber = LEDC_TIMER_NUMBER;
         this->timerFrequenceHertz = TIMER_FREQ_HERTZ;
-        this->dutyResolution = TIMER_DUTY_RESOLUTION;
-        this->speedMode = SPEED_MODE;
+        this->dutyResolution = dutyResolution;
+        this->speedMode = LEDC_LOW_SPEED_MODE;
         this->clockConfig = CLOCK_CONFIG;
         this->deconfigure = false;
 
@@ -22,6 +22,7 @@ namespace myBinaryLed {
     void binaryLed::init() {
         ledc_timer_config_t ledc_timer;
         
+        ledc_timer.speed_mode = this->speedMode;
         ledc_timer.timer_num = this->timerNumber;
         ledc_timer.freq_hz = this->timerFrequenceHertz;
         ledc_timer.clk_cfg = this->clockConfig;
@@ -35,11 +36,11 @@ namespace myBinaryLed {
 
             ledc_channel_config_t ledc_channel_conf;
             ledc_channel_conf.gpio_num =            3;
-            ledc_channel_conf.speed_mode =          LEDC_LOW_SPEED_MODE;
-            ledc_channel_conf.channel =             LEDC_CHANNEL_0;
+            ledc_channel_conf.speed_mode =          this->speedMode;
+            ledc_channel_conf.channel =             this->channel;
             ledc_channel_conf.duty    =             0;  // default setting this to 0 and already assign user value
             ledc_channel_conf.hpoint  =             0;
-            ledc_channel_conf.intr_type =           LEDC_INTR_DISABLE;
+            ledc_channel_conf.intr_type =           this->interruptType;
             ledc_channel_conf.timer_sel =           ledc_timer.timer_num;
             ledc_channel_conf.sleep_mode =          LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
             

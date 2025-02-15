@@ -4,32 +4,14 @@
 
 
 
-namespace adcOneMode { 
+namespace adcOneMode {  
 
     adc::adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode) : unitId(unitId), clkSrc(clkSrc), ulpMode(ulpMode) {
-        adcAveargeData = (int*) calloc(AVERAGE_ARRAY_SIZE, sizeof(int));
-
         onThreshold_cb = NULL;
-
-        if(adcAveargeData == NULL) {
-            printf("Allocation failed!\n");
-            exit(0);
-        }
-
-        for (int i = 0; i < AVERAGE_ARRAY_SIZE; i++)
-        {
-            adcAveargeData[i] = -1;
-        }
         
     }
 
-
-
-
-
     void adc::init() {
-        //adc_oneshot_unit_init_cfg_t adcConf;
-        //adc_oneshot_unit_handle_t adcUnitHandle;
         adc_oneshot_unit_init_cfg_t adcConf;
 
         adcConf.unit_id = this->getUnitId();
@@ -40,15 +22,16 @@ namespace adcOneMode {
 
         adc_oneshot_chan_cfg_t channelConf;
 
-        channelConf.bitwidth = ADC_BITWIDTH_DEFAULT;
-        channelConf.atten = ADC_ATTEN_DB_12;
+        channelConf.bitwidth = MY_ADC_BITWITH_BITS;
+        channelConf.atten = MY_ADC_ATTEN;
 
-  
         // ADC_CHANNEL_2
-
         ESP_ERROR_CHECK(adc_oneshot_config_channel(this->adcUnitHandle, MY_ADC_CHANNEL, &channelConf));
-        PRINTF_COLOR(ANSI_BLUE, "adc_unit: %d & adc_channel: %d, configuration succed!" NEW_LINE, MY_ADC_UNIT, MY_ADC_CHANNEL);
-
+        PRINTF_COLOR(ANSI_MAGENTA, "<-------------------------------------------ADC-Config----------------------------------------------->" NEW_LINE)
+        PRINTF_GROUP_SUCCESFUL("oneshot mode and channel configuration for ADC worked!" NEW_LINE);
+        PRINTF_GROUP_SUCCESFUL("adc_unit: %d & adc_channel: %d, configuration succed!" NEW_LINE, MY_ADC_UNIT, MY_ADC_CHANNEL);
+        PRINTF_GROUP_SUCCESFUL("GPIO number for ADC is: %d" NEW_LINE, MY_GPIO_ADC);
+        PRINTF_COLOR(ANSI_MAGENTA, "<------------------------------------------------------------------------------------------->" NEW_LINE);
     }
 
 
