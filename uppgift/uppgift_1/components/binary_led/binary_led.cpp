@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "binary_led.h"
 namespace myBinaryLed {
-
-
-
     binaryLed::binaryLed(int gpioNumber, ledc_channel_t channel, uint32_t dutyRange, ledc_intr_type_t interruptType){
         
         this->timerNumber = LEDC_TIMER_NUMBER;

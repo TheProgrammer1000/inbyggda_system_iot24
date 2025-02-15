@@ -18,7 +18,6 @@ namespace myBinaryLed
 
     class binaryLed
     {
-
     private:
         // @brief Timer
         ledc_mode_t speedMode;
@@ -74,19 +73,12 @@ namespace myBinaryLed
         int getGpioNumber() const { return gpioNumber; }
         void setGpioNumber(int gpio) { gpioNumber = gpio; }
     
-        // Getter and Setter for channel
         ledc_channel_t getChannel() const { return channel; }
         void setChannel(ledc_channel_t ch) { channel = ch; }
     
-        // Getter and Setter for dutyRange
         uint32_t getDutyRange() const { return dutyRange; }
         void setDutyRange(uint32_t duty) { dutyRange = duty; }
-    
-        // Getter and Setter for outInvert
-        // unsigned int getOutInvert() const { return outInvert; }
-        // void setOutInvert(unsigned int invert) { outInvert = invert; }
-    
-        // Getter and Setter for interruptType
+
         ledc_intr_type_t getInterruptType() const { return interruptType; }
         void setInterruptType(ledc_intr_type_t intrType) { interruptType = intrType; }
 
@@ -108,7 +100,11 @@ namespace myBinaryLed
          */
         void init();
 
-
+        /** @brief Setting the duty to users variable
+         * 
+         *  then waiting and setting it to 0
+         * 
+        */
         void blink(int milisecOn, int milisecOff);
     };
 }
