@@ -17,6 +17,8 @@ namespace myBinaryLed {
         
         this->hpoint = 0;
         this->sleepMode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
+
+        setLed_cb = NULL;
     };
 
     void binaryLed::init() {
@@ -66,6 +68,10 @@ namespace myBinaryLed {
         }
     }
 
+    void update() {
+        
+    }
+
     void binaryLed::blink(int milisecOn, int milisecOff) {
         ledc_set_duty(this->speedMode, this->channel, this->dutyRange); 
         ledc_update_duty(this->speedMode, this->channel);
@@ -74,5 +80,16 @@ namespace myBinaryLed {
         ledc_set_duty(this->speedMode, this->channel, 0); 
         ledc_update_duty(this->speedMode, this->channel);
         vTaskDelay(pdMS_TO_TICKS(milisecOff));
+    }
+
+
+    void binaryLed::ledsetted(int value, int pin) {
+        if(setLed_cb != NULL) {
+            setLed_cb(value, pin);  
+        }
+    }
+
+    void binaryLed::setLed(setLed_t setLedFunc) {
+        setLed_cb = setLedFunc;
     }
 };

@@ -53,6 +53,7 @@ namespace myBinaryLed
          */
         binaryLed(int gpioNumber, ledc_channel_t channel, ledc_timer_bit_t dutyResolution, uint32_t dutyRange, ledc_intr_type_t interruptType);
 
+
         // Getters  Timer
         ledc_mode_t getSpeedMode() const { return speedMode; }
         ledc_timer_t getTimerNumber() const { return timerNumber; }
@@ -106,5 +107,33 @@ namespace myBinaryLed
          * 
         */
         void blink(int milisecOn, int milisecOff);
+
+
+        void update();
+
+
+        typedef void (*setLed_t)(int value, int pin);
+        setLed_t setLed_cb;
+
+        /**
+        * @brief Calling userdefined function setted by 'setLed' function
+        * 
+        * @param int value
+        * @param int pin
+        * 
+        */
+        void ledsetted(int value, int pin);
+
+        /**
+         * @brief Set the Led object, duty resolution
+         * 
+         *
+         * @param setLedFunc 
+         *
+         * 
+         * 
+         * 
+         */
+        void setLed(setLed_t setLedFunc);
     };
 }
