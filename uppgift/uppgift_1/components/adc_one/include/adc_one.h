@@ -59,9 +59,11 @@ namespace adcOneMode {
             void setUlpMode(adc_ulp_mode_t value) { ulpMode = value; }
 
             void setAttenuation(adc_atten_t newAtten) {atten = newAtten; }
-            void setBitwidth(adc_bitwidth_t newBitwidth) { bitwidth = newBitwidth; }
+            void setBitwidth(adc_bitwidth_t newBitwidth) { bitwidth = newBitwidth; }  
+            void setAdcUnitHandle(adc_oneshot_unit_handle_t handle) { adcUnitHandle = handle; }
 
-
+            
+            adc_oneshot_unit_handle_t getAdcUnitHandle() const { return adcUnitHandle; }
             adc_unit_t getUnitId() { return unitId; }
             adc_oneshot_clk_src_t getClkSrc() { return clkSrc; }
             adc_ulp_mode_t getUlpMode() { return ulpMode; }

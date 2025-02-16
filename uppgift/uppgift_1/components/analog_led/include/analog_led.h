@@ -11,9 +11,10 @@ namespace myAnalogLed {
             myBinaryLed::binaryLed binaryLedInstance;
 
         public:
-            analogLed(adcOneMode::adc& adcInstance, myBinaryLed::binaryLed& binaryLedInstance) : adcInstance(adcInstance), binaryLedInstance(binaryLedInstance) {}//adcInstance(MY_ADC_UNIT, MY_DIGI_CLK_SOURCE, ADC_ULP_MODE_DISABLE), binaryLedInstance(3, LEDC_CHANNEL_0, LEDC_TIMER_12_BIT, 0, LEDC_INTR_DISABLE) {
-
+            analogLed(adcOneMode::adc& adcInstance, myBinaryLed::binaryLed& binaryLedInstance) : adcInstance(adcInstance), binaryLedInstance(binaryLedInstance) {}
+            int adc_raw_array[2][10];
 
             void init();
+            void update();
     };
 }
