@@ -7,7 +7,12 @@
 namespace adcOneMode {  
 
     adc::adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode) : unitId(unitId), clkSrc(clkSrc), ulpMode(ulpMode) {
-        onThreshold_cb = NULL;
+        threshold_cb = NULL;
+
+        this->threshold = 0;
+        this->risingEdge = true;
+
+        this->thresholdState = false;
         
     }
 
@@ -41,28 +46,57 @@ namespace adcOneMode {
             onThreshold_t onThreshold_cb;
 
             void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
-    
+
+
+            threshold när den kommer över en visst threshold som user sätter då triggas denna funktion och som ska 
+            printa ut värdet bara. Sen när den kommer under ett visst värde igen och kommer upp då ska den triggas.
     */
+
+
+    void adc::onThreshold() {
+        if(threshold_cb != NULL) {
+            threshold_cb();
+        }
+    }
 
     void adc::update() {
         adc_oneshot_read(this->adcUnitHandle, MY_ADC_CHANNEL, &this->adc_raw_array[0][0]);
 
-        if(this->onThreshold_cb != NULL) {
-
+        if(this->risingEdge == true) {
+            if(this->threshold_cb != NULL && this->adc_raw_array[0][0] >= this->threshold && this->thresholdState == false) {
+                threshold_cb();
+                thresholdState = true;
+            }
+    
+            if(this->adc_raw_array[0][0] < this->threshold) {
+                thresholdState = false;
+            }    
         }
+        else {
+            if(this->threshold_cb != NULL && this->adc_raw_array[0][0] <= this->threshold && this->thresholdState == false) {
+                threshold_cb();
+                thresholdState = true;
+            }
+
+            if(this->adc_raw_array[0][0] > this->threshold) {
+                thresholdState = false;
+            }   
+        }
+
+        
         
         PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
       
     }
 
-    // int adc::getValue() {
-
-    // }
-
     void adc::setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc) {
         this->threshold = threshold;
         this->risingEdge = risingEdge;
-        
-        this->onThreshold_cb = onThreshHoldFunc;
+
+        this->threshold_cb = onThreshHoldFunc;
+    }
+
+    int adc::getValue() {
+        return this->adc_raw_array[0][0];
     }
 }

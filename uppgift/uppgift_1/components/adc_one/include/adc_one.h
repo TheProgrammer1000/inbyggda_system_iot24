@@ -50,8 +50,10 @@ namespace adcOneMode {
             int threshold;
             bool risingEdge;
 
-            typedef void (*onThreshold_t)(int pin, int value);
-            onThreshold_t onThreshold_cb;
+            bool thresholdState;
+
+            typedef void (*onThreshold_t)(void);
+            onThreshold_t threshold_cb;
 
 
             void setUnitId(adc_unit_t value) { unitId = value; }
@@ -82,8 +84,8 @@ namespace adcOneMode {
             void init();
             void update();
             int getValue();
-            
-    
+
+            void onThreshold();
             void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
             //void (int threshold, bool risingEdge,(*onThreshold)(int pin, int value))
             // setOnThreshold ( int threshold, bool risingEdge, xxx (*onThreshold)(int pin/adc, value, xxx), xxx )

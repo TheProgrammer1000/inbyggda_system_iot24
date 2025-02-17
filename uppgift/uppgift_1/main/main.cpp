@@ -3,32 +3,33 @@
 #include "binary_led.h"
 #include "analog_led.h"
 
+
+void myFunctionToAdc() {
+    printf("From potentimeter!!" NEW_LINE);
+}
+
+
 extern "C" void app_main(void)
 {  
 
+    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
 
-    //myAnalogLed::analogLed analogLed1;
-
-    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);   
-    //    adc1.init();
+    adc1.init();
+    adc1.setOnThreshold(2000, false, myFunctionToAdc);
 
 
-    myBinaryLed::binaryLed binaryled1(3, LEDC_CHANNEL_0,LEDC_TIMER_12_BIT ,0b11111111, LEDC_INTR_DISABLE);
+    //myBinaryLed::binaryLed binaryLed1(2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE);
 
-    // binaryled1.init();
-    // binaryled1.blink(4000, 4000);
+    //binaryLed1.init();
+    //binaryLed1.blink(3000, 3000);
+    //binaryLed1.setLed(myFunctionToAdc);
     
-    myAnalogLed::analogLed analog1(adc1, binaryled1);
-
-    analog1.init();
-
-
-
+    
 
     
     while(1) {
-        analog1.update();
+        //binaryLed1.update();
+        adc1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
-
     }
 }
