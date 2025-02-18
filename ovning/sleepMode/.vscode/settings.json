@@ -1,0 +1,13 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPath": "/Users/denniskarlsson/esp/v5.4/esp-idf",
+    "idf.openOcdConfigs": [
+        "board/esp32c6-ftdi.cfg"
+    ],
+    "idf.port": "/dev/tty.usbserial-10",
+    "idf.toolsPath": "/Users/denniskarlsson/.espressif",
+    "idf.flashType": "UART",
+    "files.associations": {
+        "*.tcc": "cpp"
+    }
+}
