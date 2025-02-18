@@ -9,6 +9,8 @@ namespace myBinaryLed {
         this->pull_up_en = pull_up_en;
         this->pull_down_en = pull_down_en;
         this->intr_type = intr_type;
+
+        setLed_cb = NULL;
     
     };
 
@@ -35,7 +37,7 @@ namespace myBinaryLed {
         // Example logic for toggling LED based on elapsed time
         if (ledState) {  // LED is currently ON
             if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOn)) {
-                ESP_ERROR_CHECK(gpio_set_level((gpio_num_t)this->pin, 0));
+                gpio_set_level((gpio_num_t)this->pin, 0);
                 ledState = false;
                 lastWakeTime = currentTick;
 
@@ -43,7 +45,7 @@ namespace myBinaryLed {
             }
         } else {  // LED is currently OFF
             if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOff)) {
-                ESP_ERROR_CHECK(gpio_set_level((gpio_num_t)this->pin, 1));
+                gpio_set_level((gpio_num_t)this->pin, 1);
                 ledState = true;
                 lastWakeTime = currentTick;
 
