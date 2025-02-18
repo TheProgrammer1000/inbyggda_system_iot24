@@ -15,7 +15,8 @@ namespace myBinaryLed
     class binaryLed
     {
     private:
-    
+        typedef void (*setLed_t)(void);
+        setLed_t setLed_cb;
     int pin;
     gpio_mode_t mode;
     gpio_pullup_t pull_up_en;
@@ -36,8 +37,8 @@ namespace myBinaryLed
 
         void update();
 
-        typedef void (*setLed_t)(void);
-        setLed_t setLed_cb;
+        
+    
 
         void setLed(setLed_t setLedFunc);
     };

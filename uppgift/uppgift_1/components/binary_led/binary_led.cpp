@@ -9,6 +9,8 @@ namespace myBinaryLed {
         this->pull_up_en = pull_up_en;
         this->pull_down_en = pull_down_en;
         this->intr_type = intr_type;
+
+        setLed_cb = NULL;
     
     };
 
