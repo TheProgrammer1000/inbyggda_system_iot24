@@ -15,8 +15,7 @@ namespace myBinaryLed
     class binaryLed
     {
     private:
-        typedef void (*setLed_t)(void);
-        setLed_t setLed_cb;
+
     int pin;
     gpio_mode_t mode;
     gpio_pullup_t pull_up_en;
@@ -28,7 +27,9 @@ namespace myBinaryLed
 
     TickType_t lastWakeTime;
     bool ledState; // false = off, true = on
-    void ledsSetted();
+
+    int setLedValue;
+    bool isSetLed;
 
     public:
         binaryLed(int pin, gpio_pullup_t pull_up_en, gpio_pulldown_t pull_down_en, gpio_int_type_t intr_type);
@@ -40,6 +41,6 @@ namespace myBinaryLed
         
     
 
-        void setLed(setLed_t setLedFunc);
+        void setLed(int setLedValue);
     };
 }

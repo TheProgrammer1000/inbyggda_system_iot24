@@ -9,9 +9,9 @@ void myFunctionToAnalog(char* msg) {
     printf("%s\n", msg);
 }
 
-// void myFunctionToBinary() {
-//     printf("Blink is on!\n");
-// }
+void myFunctionToPotenti() {
+    printf("From potentimeter!\n");
+}
 
 
 extern "C" void app_main(void)
@@ -23,10 +23,10 @@ extern "C" void app_main(void)
 
 
     
-    //adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
+    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
 
-    //adc1.init();
-    //adc1.setOnThreshold(2000, false, myFunctionToAdc);
+    adc1.init();
+    adc1.setOnThreshold(2000, true, myFunctionToPotenti);
 
 
     //myBinaryLed::binaryLed binaryLed1(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE);
@@ -40,7 +40,7 @@ extern "C" void app_main(void)
     
     while(1) {
         //binaryLed1.update();
-        //adc1.update();
+        adc1.update();
         //analogLed1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
     }
