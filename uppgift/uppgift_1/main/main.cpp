@@ -23,24 +23,24 @@ extern "C" void app_main(void)
 
 
     
-    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
+    //adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
 
-    adc1.init();
-    adc1.setOnThreshold(2000, true, myFunctionToPotenti);
+    //adc1.init();
+    //adc1.setOnThreshold(2000, true, myFunctionToPotenti);
 
 
     //myBinaryLed::binaryLed binaryLed1(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE);
 
     //binaryLed1.init();
     //binaryLed1.blink(2000, 2000);
-    //binaryLed1.setLed(0);
+    //binaryLed1.setLed(1);
     
     
 
     
     while(1) {
         //binaryLed1.update();
-        adc1.update();
+        //adc1.update();
         //analogLed1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
     }
