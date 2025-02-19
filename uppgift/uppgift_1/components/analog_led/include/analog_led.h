@@ -34,6 +34,8 @@ namespace myAnalogLed {
         //unsigned int outInvert;
         ledc_intr_type_t interruptType;
 
+        double sinePeriod;
+
         bool fadeOut;
         
         int setLedValue;
