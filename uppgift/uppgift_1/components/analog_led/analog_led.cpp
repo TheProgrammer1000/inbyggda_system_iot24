@@ -19,7 +19,7 @@ namespace myAnalogLed {
         this->hpoint = 0;
         this->sleepMode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
 
-        this->setLed_cb = NULL;
+        this->isLedSet = false;
         this->fadeOut = false;
 
     }
@@ -96,14 +96,10 @@ namespace myAnalogLed {
     }
 
 
-    void analogLed::ledsSetted(char* msg) {
-        if(setLed_cb != NULL) {
-            setLed_cb(msg);  
-        }
-    }
 
-    void analogLed::setLed(setLed_t setLedFunc) {
-        setLed_cb = setLedFunc;
+    void analogLed::setLed(int setLedValue) {
+        this->isLedSet = true;
+        this->setLedValue = setLedValue;
     }
 
     void analogLed::update() {
@@ -115,12 +111,12 @@ namespace myAnalogLed {
         ledc_set_duty(speedMode, channel, duty);
         ledc_update_duty(speedMode, channel);
         
-        if(this->setLed_cb != NULL && duty >= this->getDutyRange()) {
-            setLed_cb("Fade out!");
-        }
+        // if(this->setLed_cb != NULL && duty >= this->getDutyRange()) {
+        //     setLed_cb("Fade out!");
+        // }
 
-        if(this->setLed_cb != NULL && duty <= 0) {
-            setLed_cb("Fade in!");
-        }
+        // if(this->setLed_cb != NULL && duty <= 0) {
+        //     setLed_cb("Fade in!");
+        // }
     }
 }
