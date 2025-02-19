@@ -17,14 +17,14 @@ void myFunctionToPotenti() {
 extern "C" void app_main(void)
 {  
 
-    myAnalogLed::analogLed analogLed1(3, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE);
-    analogLed1.init();
+    //myAnalogLed::analogLed analogLed1(3, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE);
+    //analogLed1.init();
     //analogLed1.setLed(myFunctionToAnalog);
     
 
     //
-    analogLed1.setLed(50);
-    analogLed1.sineWave(pdMS_TO_TICKS(2000));
+    //analogLed1.setLed(50);
+    //analogLed1.sineWave(pdMS_TO_TICKS(2000));
 
     //adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
 
@@ -43,7 +43,7 @@ extern "C" void app_main(void)
     while(1) {
         //binaryLed1.update();
         //adc1.update();
-        analogLed1.update();
+        //analogLed1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
     }
 }
