@@ -5,8 +5,7 @@
 #include "freertos/task.h"
 #include "esp_sleep.h"
 #include "nvs_flash.h"
-#include "esp_mac.h"
-#include "string.h"
+
 
 
 // setting a varible which will be stored in deep-sleep
