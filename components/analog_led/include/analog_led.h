@@ -34,8 +34,12 @@ namespace myAnalogLed {
         //unsigned int outInvert;
         ledc_intr_type_t interruptType;
 
+        double sinePeriod;
+
         bool fadeOut;
-        void ledsSetted(char* msg);
+        
+        int setLedValue;
+        bool isLedSet;
 
 
         public:
@@ -90,12 +94,10 @@ namespace myAnalogLed {
         ledc_sleep_mode_t getSleepMode() const { return sleepMode; }
         void setSleepMode(ledc_sleep_mode_t mode) { sleepMode = mode; }
 
-        typedef void (*setLed_t)(char* msg);
-        setLed_t setLed_cb;
 
         uint32_t sineWave(double period); // Helper function to compute duty from sine wave
 
-        void setLed(setLed_t setLedFunc);
+        void setLed(int setLedValue);
         /**
         * 
         * @brief Initializes the timer and channel configuration.

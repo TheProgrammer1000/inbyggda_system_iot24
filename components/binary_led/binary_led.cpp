@@ -10,7 +10,8 @@ namespace myBinaryLed {
         this->pull_down_en = pull_down_en;
         this->intr_type = intr_type;
 
-        setLed_cb = NULL;
+        isSetLed = false;
+        setLedValue = -1;
     
     };
 
@@ -34,26 +35,28 @@ namespace myBinaryLed {
     void binaryLed::update() {
 
         TickType_t currentTick = xTaskGetTickCount();
-        // Example logic for toggling LED based on elapsed time
-        if (ledState) {  // LED is currently ON
-            if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOn)) {
-                gpio_set_level((gpio_num_t)this->pin, 0);
-                ledState = false;
-                lastWakeTime = currentTick;
-
-                
-            }
-        } else {  // LED is currently OFF
-            if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOff)) {
-                gpio_set_level((gpio_num_t)this->pin, 1);
-                ledState = true;
-                lastWakeTime = currentTick;
-
-                if(setLed_cb != NULL) {
-                    setLed_cb();
+        
+        if(this->isSetLed == false) {
+            if (ledState) {  // LED is currently ON
+                if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOn)) {
+                    gpio_set_level((gpio_num_t)this->pin, 0);
+                    ledState = false;
+                    lastWakeTime = currentTick;
+    
+                    
+                }
+            } else {  // LED is currently OFF
+                if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOff)) {
+                    gpio_set_level((gpio_num_t)this->pin, 1);
+                    ledState = true;
+                    lastWakeTime = currentTick;              
                 }
             }
+        } else {
+            gpio_set_level((gpio_num_t) this->pin,this->setLedValue);
         }
+
+        
     }
 
     void binaryLed::blink(int miliSecOn, int miliSecOff) {
@@ -62,13 +65,9 @@ namespace myBinaryLed {
     }
 
 
-    void binaryLed::ledsSetted() {
-        if(setLed_cb != NULL) {
-            setLed_cb();  
-        }
-    }
-
-    void binaryLed::setLed(setLed_t setLedFunc) {
-        setLed_cb = setLedFunc;
+    void binaryLed::setLed(int setLedValue) {
+        this->isSetLed = true;
+        this->setLedValue = setLedValue;
+        
     }
 }

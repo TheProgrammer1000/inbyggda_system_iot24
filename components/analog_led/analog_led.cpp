@@ -19,8 +19,7 @@ namespace myAnalogLed {
         this->hpoint = 0;
         this->sleepMode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
 
-        this->setLed_cb = NULL;
-        this->fadeOut = false;
+        this->isLedSet = false;
 
     }
 
@@ -75,52 +74,60 @@ namespace myAnalogLed {
     // The 'periodInTicks' parameter is the duration of one full sine cycle in ticks.
     uint32_t analogLed::sineWave(double periodInTicks) {
         // Store the start tick count (only once)
-        static TickType_t startTick = xTaskGetTickCount();
+        if(isLedSet == true) {
+            isLedSet = false;
+        }
 
+        this->sinePeriod = periodInTicks;
+
+        static TickType_t startTick = xTaskGetTickCount();
+    
         // Get the current tick count
         TickType_t currentTick = xTaskGetTickCount();
         TickType_t elapsedTicks = currentTick - startTick;
-
+    
         // Calculate the phase as a fraction of the period [0, 1)
         double phase = fmod(static_cast<double>(elapsedTicks), periodInTicks) / periodInTicks;
-
+    
         // Convert the phase to an angle (0 to 2π radians)
         double angle = phase * 2.0 * M_PI;
-
+    
         // Compute the sine value (range: -1 to 1)
         double sineValue = sin(angle);
-
+    
         // Map sineValue from [-1, 1] to [0, dutyRange]
         uint32_t duty = static_cast<uint32_t>(std::round(((sineValue + 1.0) / 2.0) * dutyRange));
         return duty;
     }
+    
 
 
-    void analogLed::ledsSetted(char* msg) {
-        if(setLed_cb != NULL) {
-            setLed_cb(msg);  
-        }
-    }
 
-    void analogLed::setLed(setLed_t setLedFunc) {
-        setLed_cb = setLedFunc;
+    void analogLed::setLed(int setLedValue) {
+        this->isLedSet = true;
+        this->setLedValue = setLedValue;
     }
 
     void analogLed::update() {
-        TickType_t periodInTick = pdMS_TO_TICKS(2000); 
-
-        // Get the duty cycle based on the sine wave
-        uint32_t duty = sineWave(static_cast<double>(periodInTick));
-
-        ledc_set_duty(speedMode, channel, duty);
-        ledc_update_duty(speedMode, channel);
         
-        if(this->setLed_cb != NULL && duty >= this->getDutyRange()) {
-            setLed_cb("Fade out!");
-        }
+        if(this->isLedSet == false) {
 
-        if(this->setLed_cb != NULL && duty <= 0) {
-            setLed_cb("Fade in!");
+            this->setLedValue = sineWave(this->sinePeriod);
+
+            // Update the PWM duty cycle accordingly.
+            ledc_set_duty(speedMode, channel, this->setLedValue);
+            ledc_update_duty(speedMode, channel);
+            //TickType_t periodInTick = pdMS_TO_TICKS(2000); 
+
+            // // Get the duty cycle based on the sine wave
+            // //uint32_t duty = sineWave();
+    
+            // ledc_set_duty(speedMode, channel, duty);
+            // ledc_update_duty(speedMode, channel);
+        }
+        else {
+            ledc_set_duty(speedMode, channel, this->setLedValue);
+            ledc_update_duty(speedMode, channel);
         }
     }
 }
