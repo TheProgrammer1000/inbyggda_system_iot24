@@ -70,8 +70,12 @@ namespace myAnalogLed {
         }
     }
 
-     // Helper function that computes a PWM duty cycle based on a sine wave.
-    // The 'periodInTicks' parameter is the duration of one full sine cycle in ticks.
+    /**
+     * @brief 
+     * @attention call this with pdMS_TO_TICKS to milisec in the argument like 'pdMS_TO_TICKS(2000)'!
+     * @param periodInTicks 
+     * 
+     */
     uint32_t analogLed::sineWave(double periodInTicks) {
         // Store the start tick count (only once)
         if(isLedSet == true) {
@@ -114,16 +118,8 @@ namespace myAnalogLed {
 
             this->setLedValue = sineWave(this->sinePeriod);
 
-            // Update the PWM duty cycle accordingly.
             ledc_set_duty(speedMode, channel, this->setLedValue);
             ledc_update_duty(speedMode, channel);
-            //TickType_t periodInTick = pdMS_TO_TICKS(2000); 
-
-            // // Get the duty cycle based on the sine wave
-            // //uint32_t duty = sineWave();
-    
-            // ledc_set_duty(speedMode, channel, duty);
-            // ledc_update_duty(speedMode, channel);
         }
         else {
             ledc_set_duty(speedMode, channel, this->setLedValue);

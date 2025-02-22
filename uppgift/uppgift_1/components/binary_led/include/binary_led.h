@@ -40,7 +40,7 @@ namespace myBinaryLed
 
         
     
-
+        int getPin() { return this->pin;};
         void setLed(int setLedValue);
     };
 }
