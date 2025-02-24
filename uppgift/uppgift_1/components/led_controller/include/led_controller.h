@@ -5,6 +5,7 @@
 #include "analog_led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_err.h"
 
 namespace myLedController {
     class ledController {
@@ -15,12 +16,18 @@ namespace myLedController {
             int sizeOfBinary;
             int sizeOfAnalog;
 
-            TickType_t lastWakeTime;
+            TickType_t lastWakeTimeOnSnake;
+            TickType_t lastWakeTimeOnPeriod;
+
             bool ledState; // false = off, true = on
 
         public:
             ledController();
             void blinkAll(int onMs, int offMs);
+
+            void myLedAnimation(int lapPeriodMs, int sizeOfBinary, bool isAnalog);
+
+            void snakeAnimation(int length, int lapPeriodMs);
             
             myAnalogLed::analogLed* getAnalogLeds() {return analogLeds;};
             myBinaryLed::binaryLed* getBinaryLeds() {return binaryLeds;};

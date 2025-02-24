@@ -21,8 +21,7 @@ namespace myAnalogLed {
 
         this->isLedSet = false;
 
-        PRINTF_COLOR(ANSI_BLUE, "I AM HERE PIN: %d\n", this->gpioNumber);
-
+        PRINTF_COLOR(ANSI_BLUE, "");
     }
 
     void analogLed::init() {
@@ -59,7 +58,6 @@ namespace myAnalogLed {
             else if(esp_err == ESP_OK) {
                 //PRINTF_GROUP_SUCCESFUL("Successfully configured channel!" NEW_LINE);
                 PRINTF_COLOR(ANSI_MAGENTA, "Successfully configured analog, pin: %d!" NEW_LINE, this->gpioNumber);
-
             }
 
         }

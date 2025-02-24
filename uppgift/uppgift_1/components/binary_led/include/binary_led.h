@@ -25,7 +25,7 @@ namespace myBinaryLed
     int milisecLedOn;
     int milisecLedOff;
 
-    TickType_t lastWakeTime;
+    TickType_t lastWakeTimeOnSnake;
     bool ledState; // false = off, true = on
 
     int setLedValue;

@@ -25,8 +25,8 @@ namespace myBinaryLed {
         ESP_ERROR_CHECK(gpio_config(&gpioConf));
         PRINTF_COLOR(ANSI_MAGENTA, "Sucessfully configured binary pin: %d" NEW_LINE, this->pin);
 
-        // Initialize lastWakeTime after the scheduler is running
-        lastWakeTime = xTaskGetTickCount();
+        // Initialize lastWakeTimeOnSnake after the scheduler is running
+        lastWakeTimeOnSnake = xTaskGetTickCount();
         ledState = false; // Assuming LED starts off
     }
 
@@ -36,16 +36,16 @@ namespace myBinaryLed {
         
         if(this->isSetLed == false) {
             if (ledState) {  // LED is currently ON
-                if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOn)) {
+                if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(milisecLedOn)) {
                     gpio_set_level((gpio_num_t)this->pin, 0);
                     ledState = false;
-                    lastWakeTime = currentTick;       
+                    lastWakeTimeOnSnake = currentTick;       
                 }
             } else {  // LED is currently OFF
-                if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOff)) {
+                if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(milisecLedOff)) {
                     gpio_set_level((gpio_num_t)this->pin, 1);
                     ledState = true;
-                    lastWakeTime = currentTick;    
+                    lastWakeTimeOnSnake = currentTick;    
                 }
             }
         } else {

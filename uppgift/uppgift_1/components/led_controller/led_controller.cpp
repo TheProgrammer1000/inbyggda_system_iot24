@@ -16,8 +16,10 @@ namespace myLedController {
         this->binaryLeds = binaryLeds;
         this->analogLeds = analogLeds;
 
-          // Initialize lastWakeTime after the scheduler is running
-        this->lastWakeTime = xTaskGetTickCount();
+          // Initialize lastWakeTimeOnSnake after the scheduler is running
+        this->lastWakeTimeOnSnake = xTaskGetTickCount();
+        this->lastWakeTimeOnPeriod = xTaskGetTickCount();
+
         this->ledState = false; // Assuming LED starts off
     }
 
@@ -25,16 +27,17 @@ namespace myLedController {
 
     // this was for binary
     void ledController::blinkAll(int milisecLedOn, int milisecLedOff) {
-
+     
         TickType_t currentTick = xTaskGetTickCount();
         
         if (ledState) {  // LED is currently ON
-            if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOn)) {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(milisecLedOn)) {
                 
                 if(this->analogLeds != NULL && this->binaryLeds != NULL) {
                     for (int i = 0; i < this->sizeOfAnalog; i++)
-                    {
-                        analogLeds[i].setLed(0);
+                    {   
+                        ledc_set_duty(analogLeds[i].getSpeedMode(), analogLeds[i].getChannel(), 0); // sätter 1000 hårdkodat
+                        ledc_update_duty(analogLeds[i].getSpeedMode(), analogLeds[i].getChannel());
                     }
 
                     for (int i = 0; i < this->sizeOfBinary; i++)
@@ -45,17 +48,18 @@ namespace myLedController {
                 }
 
                 ledState = false;
-                lastWakeTime = currentTick;
+                lastWakeTimeOnSnake = currentTick;
 
                 
             }
         } else {  // LED is currently OFF
-            if ((currentTick - lastWakeTime) >= pdMS_TO_TICKS(milisecLedOff)) {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(milisecLedOff)) {
                 
                 if(this->analogLeds != NULL && this->binaryLeds != NULL) {
                     for (int i = 0; i < this->sizeOfAnalog; i++)
                     {   
-                        this->analogLeds[i].setLed(1000);
+                        ledc_set_duty(analogLeds[i].getSpeedMode(), analogLeds[i].getChannel(), 1000); // sätter 1000 hårdkodat
+                        ledc_update_duty(analogLeds[i].getSpeedMode(), analogLeds[i].getChannel());
                     }
                     for (int i = 0; i < this->sizeOfBinary; i++)
                     {
@@ -64,8 +68,49 @@ namespace myLedController {
                 }
                 
                 ledState = true;
-                lastWakeTime = currentTick;              
+                lastWakeTimeOnSnake = currentTick;              
             }
         }
+    }
+
+    void ledController::myLedAnimation(int lapPeriodMs, int sizeOfBinary, bool isAnalog) {
+
+        TickType_t currentTick = xTaskGetTickCount();
+
+        static int counter = 0;
+        static bool isAllSet = false;
+
+        if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+            if(counter >= sizeOfBinary) {
+                isAllSet = true;
+            }  
+
+            if(isAllSet == true) {
+                counter--;
+                int arrayIndex = counter % sizeOfBinary;
+                gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 0);
+
+                lastWakeTimeOnSnake = xTaskGetTickCount();
+
+                if(counter <= 0) {
+                    isAllSet = false;
+                }
+            }
+            else {
+                int arrayIndex = counter % sizeOfBinary;
+
+                gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 1);
+                counter++;
+    
+                lastWakeTimeOnSnake = xTaskGetTickCount();
+            }
+        }
+    }
+
+    void ledController::snakeAnimation(int length, int lapPeriodMs) {
+        /*
+            length: längden på snaken
+            lapPeriodMs: hur snabbt varje varv ska gå
+        */
     }
 }
