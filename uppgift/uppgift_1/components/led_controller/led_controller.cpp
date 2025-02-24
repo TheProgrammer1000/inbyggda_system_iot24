@@ -2,10 +2,10 @@
 
 
 namespace myLedController {
-    ledController::ledController() {
+     ledController::ledController() {
         this->analogLeds = NULL;
         this->binaryLeds = NULL;
-    }
+     }
 
 
     //Ta in listor på led komponenter och spara

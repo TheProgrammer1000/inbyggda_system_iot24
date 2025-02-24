@@ -21,6 +21,8 @@ namespace myAnalogLed {
 
         this->isLedSet = false;
 
+        PRINTF_COLOR(ANSI_BLUE, "I AM HERE PIN: %d\n", this->gpioNumber);
+
     }
 
     void analogLed::init() {
@@ -36,7 +38,7 @@ namespace myAnalogLed {
         esp_err_t timer_err_esp = ledc_timer_config(&ledc_timer);
 
         if(timer_err_esp == ESP_OK) {
-            PRINTF_GROUP_SUCCESFUL("Successfully configured ledc timer configuration!" NEW_LINE);
+            //PRINTF_GROUP_SUCCESFUL("Successfully configured ledc timer configuration!" NEW_LINE);
 
             ledc_channel_config_t ledc_channel_conf;
             ledc_channel_conf.gpio_num =            this->gpioNumber;
@@ -55,7 +57,9 @@ namespace myAnalogLed {
                 PRINTF_COLOR_WITH_LINE(ANSI_RED,"Invalid parameters");
             }
             else if(esp_err == ESP_OK) {
-                PRINTF_GROUP_SUCCESFUL("Successfully configured channel!" NEW_LINE);
+                //PRINTF_GROUP_SUCCESFUL("Successfully configured channel!" NEW_LINE);
+                PRINTF_COLOR(ANSI_MAGENTA, "Successfully configured analog, pin: %d!" NEW_LINE, this->gpioNumber);
+
             }
 
         }
