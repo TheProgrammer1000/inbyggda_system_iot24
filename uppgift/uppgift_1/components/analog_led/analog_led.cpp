@@ -20,8 +20,6 @@ namespace myAnalogLed {
         this->sleepMode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD;
 
         this->isLedSet = false;
-
-        PRINTF_COLOR(ANSI_BLUE, "");
     }
 
     void analogLed::init() {
