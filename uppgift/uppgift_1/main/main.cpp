@@ -59,8 +59,9 @@ extern "C" void app_main(void)
         
 
         //ledcontroller.blinkAll(2000, 2000);
-       //ledcontroller.myLedAnimation(2000, binarySize, false);
-       ledcontroller.snakeAnimation(2, 2000, 5);
+        //ledcontroller.myLedAnimation(2000, binarySize, false);
+        //ledcontroller.snakeFushionAnimation(2, 500, 5);
+        //ledcontroller.snakeAnimation(2, 500, binarySize);
         vTaskDelay(pdMS_TO_TICKS(30));
     }
 }

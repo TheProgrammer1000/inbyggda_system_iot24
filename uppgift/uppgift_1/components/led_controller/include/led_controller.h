@@ -27,8 +27,10 @@ namespace myLedController {
 
             void myLedAnimation(int lapPeriodMs, int sizeOfBinary, bool isAnalog);
 
-            void snakeAnimation(int length, int lapPeriodMs, int sizeOfLed);
+            void snakeFushionAnimation(int length, int lapPeriodMs, int sizeOfLed);
             
+            void snakeAnimation(int length, int lapPeriodMs, int sizeOfLed);
+
             myAnalogLed::analogLed* getAnalogLeds() {return analogLeds;};
             myBinaryLed::binaryLed* getBinaryLeds() {return binaryLeds;};
 
