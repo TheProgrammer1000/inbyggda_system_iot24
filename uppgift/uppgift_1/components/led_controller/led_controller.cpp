@@ -80,37 +80,94 @@ namespace myLedController {
         static int counter = 0;
         static bool isAllSet = false;
 
-        if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
-            if(counter >= sizeOfBinary) {
-                isAllSet = true;
-            }  
 
-            if(isAllSet == true) {
-                counter--;
-                int arrayIndex = counter % sizeOfBinary;
-                gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 0);
+
+
+        if(isAnalog == true) {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+
+                PRINTF_COLOR(ANSI_BLUE,"HERRE" NEW_LINE);
 
                 lastWakeTimeOnSnake = xTaskGetTickCount();
-
-                if(counter <= 0) {
-                    isAllSet = false;
-                }
             }
-            else {
-                int arrayIndex = counter % sizeOfBinary;
-
-                gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 1);
-                counter++;
+        }
+        else {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+                if(counter >= sizeOfBinary) {
+                    isAllSet = true;
+                }  
     
-                lastWakeTimeOnSnake = xTaskGetTickCount();
+                if(isAllSet == true) {
+                    counter--;
+                    int arrayIndex = counter % sizeOfBinary;
+                    gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 0);
+    
+                    lastWakeTimeOnSnake = xTaskGetTickCount();
+    
+                    if(counter <= 0) {
+                        isAllSet = false;
+                    }
+                }
+                else {
+                    int arrayIndex = counter % sizeOfBinary;
+    
+                    gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex].getPin(), 1);
+                    counter++;
+        
+                    lastWakeTimeOnSnake = xTaskGetTickCount();
+                }
             }
         }
     }
 
-    void ledController::snakeAnimation(int length, int lapPeriodMs) {
+    void ledController::snakeAnimation(int length, int lapPeriodMs, int sizeOfLed) {
         /*
             length: längden på snaken
             lapPeriodMs: hur snabbt varje varv ska gå
         */
+       static int counter = 0;
+       static bool isFirst = false;
+
+       static int removeLed = 0;
+
+       TickType_t currentTick = xTaskGetTickCount();
+
+       if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+            //PRINTF_COLOR(ANSI_BLUE,"HERRE" NEW_LINE);
+
+            int arrayIndex = counter % sizeOfBinary;
+
+            printf("arrayIndex: %d \n", arrayIndex);
+
+            if(counter >= length - 1) {
+      
+                for (int i = counter; i >= 0; i--)
+                {
+                    /* code */
+                    PRINTF_COLOR(ANSI_BLUE, "DELETE LED: %d" NEW_LINE, counter);
+                    gpio_set_level((gpio_num_t)this->binaryLeds[i].getPin(), 0);
+                }
+                
+
+            }
+
+            for (int i = 0; i < length; i++)
+            {
+                gpio_set_level((gpio_num_t)this->binaryLeds[counter].getPin(), 1);
+                counter++;
+
+
+                printf("counter: %d \n", counter);
+            }
+            
+    
+          
+            //gpio_set_level((gpio_num_t)this->binaryLeds[arrayIndex + 1].getPin(), 1);
+            
+            
+            //counter += 2;
+
+            lastWakeTimeOnSnake = xTaskGetTickCount();
+        }
     }
 }

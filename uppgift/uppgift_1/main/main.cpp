@@ -10,50 +10,57 @@ extern "C" void app_main(void)
 {  
 
     // pin 12, 5, 2, 3 works
-    int analogSize = 2;
-    //int binarySize = 5;
+    int analogSize = 5;
+    int binarySize = 5;
 
     myBinaryLed::binaryLed binaryLeds[] = {
-        // myBinaryLed::binaryLed(2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
-        // myBinaryLed::binaryLed(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
-        // myBinaryLed::binaryLed(4, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
-        // myBinaryLed::binaryLed(5, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
-        // myBinaryLed::binaryLed(6, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE)
+        myBinaryLed::binaryLed(2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
+        myBinaryLed::binaryLed(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
+        myBinaryLed::binaryLed(4, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
+        myBinaryLed::binaryLed(5, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE),
+        myBinaryLed::binaryLed(6, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE, GPIO_INTR_DISABLE)
     };
     
     myAnalogLed::analogLed analogLeds[] = {
-        myAnalogLed::analogLed(2, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
-        myAnalogLed::analogLed(3, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
-        //myAnalogLed::analogLed(4, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE)
+        // myAnalogLed::analogLed(2, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
+        // myAnalogLed::analogLed(3, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
+        // myAnalogLed::analogLed(4, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
+        // myAnalogLed::analogLed(5, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE),
+        // myAnalogLed::analogLed(6, LEDC_CHANNEL_0, LEDC_TIMER_10_BIT, 0b1111111111, LEDC_INTR_DISABLE)
     };
 
 
-    for (int i = 0; i < analogSize; i++)
-    {
-        analogLeds[i].init();
-        analogLeds[i].sineWave(pdMS_TO_TICKS(2000));
-    }
-
-
-    // for (int i = 0; i < binarySize; i++)
+    // for (int i = 0; i < analogSize; i++)
     // {
-    //     binaryLeds[i].init();
+    //     analogLeds[i].init();
+        
+    //     //analogLeds[i].sineWave(pdMS_TO_TICKS(2000));
     // }
+
+
+    for (int i = 0; i < binarySize; i++)
+    {
+        binaryLeds[i].init();
+    }
 
     
     myLedController::ledController ledcontroller;
-    //ledcontroller.init(binaryLeds, binarySize, 0, 0);
+    ledcontroller.init(binaryLeds, binarySize, 0, 0);
+
+    
+        
 
     while(1)
     {
-        for (int i = 0; i < analogSize; i++)
-        {
-            analogLeds[i].update();
-        }
+        // for (int i = 0; i < analogSize; i++)
+        // {
+        //     analogLeds[i].update();
+        // }
         
 
         //ledcontroller.blinkAll(2000, 2000);
-        //ledcontroller.myLedAnimation(500, binarySize, false);
+       //ledcontroller.myLedAnimation(2000, binarySize, false);
+       ledcontroller.snakeAnimation(2, 2000, 5);
         vTaskDelay(pdMS_TO_TICKS(30));
     }
 }

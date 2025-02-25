@@ -50,6 +50,7 @@ namespace myAnalogLed {
 
             esp_err_t esp_err = ledc_channel_config(&ledc_channel_conf);
 
+
             if(esp_err == ESP_ERR_INVALID_ARG) {
                 PRINTF_COLOR_WITH_LINE(ANSI_RED,"Invalid parameters");
             }
