@@ -5,6 +5,12 @@ namespace myLedController {
      ledController::ledController() {
         this->analogLeds = NULL;
         this->binaryLeds = NULL;
+
+        this->forwardCounter = 0;
+        this->reversedCounter = 0;
+
+        this->reversedIndexElementToRemove = 0;
+        this->isFirstLap = true;
      }
 
 
@@ -79,9 +85,6 @@ namespace myLedController {
 
         static int counter = 0;
         static bool isAllSet = false;
-
-
-
 
         if(isAnalog == true) {
             if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
@@ -178,33 +181,66 @@ namespace myLedController {
         }
     }
 
-    void ledController::snakeAnimation(int length, int lapPeriodMs, int sizeOfLed) {
+    void ledController::snakeAnimation(int length, int lapPeriodMs, int sizeOfLed, bool reverse) {
         TickType_t currentTick = xTaskGetTickCount();
 
-        static bool isFirstLap = true;
-        static int counter = 0;
-
-        if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+        if(reverse == false) {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
             
-            if(isFirstLap == true) {
-                for (int i = 0; i < length; i++)
-                {
-                    gpio_set_level((gpio_num_t)this->binaryLeds[i].getPin(), 1);
-                    counter++;
+                if(this->isFirstLap == true) {
+                    for (int i = 0; i < length; i++)
+                    {
+                        gpio_set_level((gpio_num_t)this->binaryLeds[i].getPin(), 1);
+                        this->forwardCounter++;
+                    }
+                    this->isFirstLap = false;
                 }
-                isFirstLap = false;
-            }
-            else {
+                else {
+        
+                    int indexOfInsertLed = this->forwardCounter % sizeOfLed;
+                    int indexOfRemoveLed = (this->forwardCounter - length) % sizeOfLed;
     
-                int indexOfInsertLed = counter % sizeOfLed;
-                int indexOfRemoveLed = (counter - length) % sizeOfLed;
+                    gpio_set_level((gpio_num_t)this->binaryLeds[indexOfInsertLed].getPin(), 1);
+                    gpio_set_level((gpio_num_t)this->binaryLeds[indexOfRemoveLed].getPin(), 0);
+        
+                    this->forwardCounter++;
+                }
+                lastWakeTimeOnSnake = xTaskGetTickCount();
+            }
+        }
+        else {
+            if ((currentTick - lastWakeTimeOnSnake) >= pdMS_TO_TICKS(lapPeriodMs)) { 
+                  if(this->isFirstLap == true) {
+                        int indexOfLastLed = sizeOfLed - 1;
+                        for (int i = 0; i < length; i++)
+                        {
+                            gpio_set_level((gpio_num_t)this->binaryLeds[indexOfLastLed].getPin(), 1);
+                            //counter++;
+                            indexOfLastLed--;
+                        }
+                        this->isFirstLap = false;
 
-                gpio_set_level((gpio_num_t)this->binaryLeds[indexOfInsertLed].getPin(), 1);
-                gpio_set_level((gpio_num_t)this->binaryLeds[indexOfRemoveLed].getPin(), 0);
-    
-                counter++;
+                        this->reversedIndexElementToRemove = sizeOfLed - 1;
+                        this->reversedCounter = indexOfLastLed;
+                    }
+                    else {
+                        // counter
+                        if(this->reversedCounter < 0) {
+                            this->reversedCounter = sizeOfLed - 1;
+                        }
+
+                        int indexOfInsertLed = this->reversedCounter % sizeOfLed;
+                        int indexOfRemoveLed = (this->reversedIndexElementToRemove + this->reversedCounter + (length + 1)) % sizeOfLed;
+
+                        gpio_set_level((gpio_num_t)this->binaryLeds[indexOfInsertLed].getPin(), 1);
+                        gpio_set_level((gpio_num_t)this->binaryLeds[indexOfRemoveLed].getPin(), 0);
+
+                        this->reversedCounter--;
+
+                    }
+
+                lastWakeTimeOnSnake = xTaskGetTickCount();
             }
-            lastWakeTimeOnSnake = xTaskGetTickCount();
         }
     }
 }

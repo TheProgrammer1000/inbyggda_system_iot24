@@ -21,6 +21,13 @@ namespace myLedController {
 
             bool ledState; // false = off, true = on
 
+
+            bool isFirstLap;
+            int forwardCounter;
+            int reversedCounter;
+            int reversedIndexElementToRemove;
+
+
         public:
             ledController();
             void blinkAll(int onMs, int offMs);
@@ -29,7 +36,16 @@ namespace myLedController {
 
             void snakeFushionAnimation(int length, int lapPeriodMs, int sizeOfLed);
             
-            void snakeAnimation(int length, int lapPeriodMs, int sizeOfLed);
+
+            /**
+             * @brief Do not forget to init the ledController first
+             * 
+             * @param length 
+             * @param lapPeriodMs 
+             * @param sizeOfLed 
+             * @param reverse 
+             */
+            void snakeAnimation(int length, int lapPeriodMs, int sizeOfLed, bool reverse);
 
             myAnalogLed::analogLed* getAnalogLeds() {return analogLeds;};
             myBinaryLed::binaryLed* getBinaryLeds() {return binaryLeds;};
