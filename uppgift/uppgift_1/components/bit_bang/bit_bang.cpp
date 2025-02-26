@@ -6,6 +6,15 @@ namespace myBitBang {
 
     }
 
+    /**
+     * Skicka data en 1 som indikerar att nu komemr ett meddelande
+     * efter denna bit som är 1 kommer meddlande på 4 bitar!
+     *  
+     * Ha en timer en takt som går en gång i sekunden och lyssnar på 
+     * meddalande som kommer in
+     * 
+     */
+
     void bitBang::init() {
 
         int bundleA_gpios[2] = {2, 3};
