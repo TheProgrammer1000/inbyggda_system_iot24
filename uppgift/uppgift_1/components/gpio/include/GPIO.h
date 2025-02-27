@@ -1,5 +1,8 @@
 #pragma once
 
+#include "esp_rom_sys.h"
+
+#include "esp_attr.h"
 #include "printer.h"
 #include <stdio.h>
 #include "driver/gpio.h"
@@ -13,10 +16,21 @@ namespace myGpio {
             gpio_pulldown_t pullDownEnable;
             gpio_int_type_t interuptType; 
 
+            gpio_isr_t isrHandler;
+            void* IsrArg;          
+            volatile bool gpioInterruptTriggered;
+
+            bool isrServiceInstalled;
+      
+
+            static void IRAM_ATTR isrCallBackFunc(void* data); // Correct declaration
+
             
         public:
             Gpio(int pin, gpio_mode_t mode, gpio_pullup_t pullUpEnable, gpio_pulldown_t pullDownEnable, gpio_int_type_t interuptType);
             void init();
+            
+            void attachInterrupt();
             void update();
 
              // Setter functions

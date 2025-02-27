@@ -1,10 +1,7 @@
-
 #include "bit_bang.h"
 
 namespace myBitBang {
-    bitBang::bitBang() {
 
-    }
 
     /**
      * Skicka data en 1 som indikerar att nu komemr ett meddelande
@@ -15,24 +12,30 @@ namespace myBitBang {
      * 
      */
 
-    void bitBang::init() {
+    // void bitBang::init(myGpio::Gpio gpioTransmitter, myGpio::Gpio gpioReciever) {
 
-        // int bundleA_gpios[2] = {2, 3};
+       
+    // }
+    void bitBang::init(int baudRate) {
+        this->baudRate = baudRate;
+        this->level = 0;
+        this->isHighOrLow = false;
+    }
 
-        // uint32_t bundlePointer = (uint32_t)bundleA_gpios;
-        // // Create bundleA, output only
-        // dedic_gpio_bundle_handle_t bundleA = NULL;
-          
+    void bitBang::update() {
+        this->tickSinceStart = xTaskGetTickCount(); // Spara starttid
+        TickType_t currentTick = xTaskGetTickCount(); // Uppdatera currentTick varje iteration
+
         
-        // dedic_gpio_bundle_config_t bundleA_config = {
-        //     .gpio_array = bundleA_gpios,
-        //     .array_size = sizeof(bundleA_gpios) / sizeof(bundleA_gpios[0]),
-        //     .flags {
-        //         .out_en = 1,
-        //     }
-        // };
-        // ESP_ERROR_CHECK(dedic_gpio_new_bundle(&bundleA_config, &bundleA));
+        
+        // if(currentTick - tickSinceStart >= pdMS_TO_TICKS(baudRate)) {
 
-        // dedic_gpio_get_out_mask(bundleA, &bundlePointer);
+        //     //PRINTF_COLOR(ANSI_BLUE, "HERRE" NEW_LINE);
+        //     // tickSinceStart = xTaskGetTickCount(); // Återställ tickSinceStart
+        //     // pulseCounter = 100;
+        //     gpio_set_level((gpio_num_t)gpioTransmitter.getPin(), 0);
+
+        // }
+    
     }
 }
