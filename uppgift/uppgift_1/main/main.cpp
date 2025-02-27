@@ -17,15 +17,76 @@ extern "C" void app_main(void)
     gpioTransmitt.init();
     gpioRecieve.init();
 
+
+        
+
     
     // kolla på om en sekund har gått hur många 1 och 0 har du fått
 
     // har du börjat fått en 1 vet du att det är en meddelande igång
     // sedan resten av 4 bitar där är meddelande sen behöver du inte kolla på resten
 
+    int arraySize = 9;
+    int arrayInserted[arraySize];
+
+    int counter = 0;
+
+    int pulseCounter = 100;
+    bool toggle = false;
+
+    int level;
+
     while(1)
     {
-       gpioRecieve.update();
-       vTaskDelay(30);
+
+        static TickType_t tickSinceStart = xTaskGetTickCount(); // Spara starttid
+        TickType_t currentTick = xTaskGetTickCount(); // Uppdatera currentTick varje iteration
+    
+        if(currentTick - tickSinceStart >= pdMS_TO_TICKS(1000)) {
+
+            //PRINTF_COLOR(ANSI_BLUE, "HERRE" NEW_LINE);
+            // tickSinceStart = xTaskGetTickCount(); // Återställ tickSinceStart
+            // pulseCounter = 100;
+            gpio_set_level((gpio_num_t)gpioTransmitt.getPin(), 0);
+            
+            break;
+        }
+        else if(currentTick - tickSinceStart >= pdMS_TO_TICKS(pulseCounter) && toggle == false) {
+            gpio_set_level((gpio_num_t)gpioTransmitt.getPin(), 1);
+            level = gpio_get_level((gpio_num_t)gpioRecieve.getPin());
+
+            PRINTF_COLOR(ANSI_BLUE, "level: %d" NEW_LINE, level);
+
+            
+            arrayInserted[counter] = level;
+            counter++;
+
+            pulseCounter += 100;
+
+            toggle = true;
+        }
+        else if(currentTick - tickSinceStart >= pdMS_TO_TICKS(pulseCounter) && toggle == true) {
+            gpio_set_level((gpio_num_t)gpioTransmitt.getPin(), 0);
+            level = gpio_get_level((gpio_num_t)gpioRecieve.getPin());
+            
+            PRINTF_COLOR(ANSI_BLUE, "level: %d" NEW_LINE, level);
+
+            
+            arrayInserted[counter] = level;
+            counter++;
+
+            pulseCounter += 100;
+
+            toggle = false;
+        }
+        
+       //gpioRecieve.update();
+        vTaskDelay(pdMS_TO_TICKS(30));
     }
+
+    for (int i = 0; i < arraySize; i++)
+    {
+        PRINTF_COLOR(ANSI_BLUE, "arrayInserted[%d]: %d" NEW_LINE, i, arrayInserted[i]);
+    }
+    
 }

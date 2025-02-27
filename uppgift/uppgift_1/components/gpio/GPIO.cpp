@@ -23,9 +23,8 @@ namespace myGpio {
         gpio_dump_io_configuration(stdout, (1UL << this->pin));
     }
     void Gpio::update() {
-        int level = gpio_get_level((gpio_num_t)this->pin);
 
-        printf("level: %d\n", level);
+      
         // if(level > 0) {
         //     PRINTF_COLOR(ANSI_BLUE, "THE INPUT GOT SOMETHING!" NEW_LINE);
         // }
