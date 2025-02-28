@@ -5,6 +5,10 @@
 #include "esp_attr.h"
 #include "printer.h"
 #include <stdio.h>
+#include "driver/gpio_filter.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/gpio.h"
 
 namespace myGpio {
@@ -21,7 +25,7 @@ namespace myGpio {
             volatile bool gpioInterruptTriggered;
 
             bool isrServiceInstalled;
-      
+            gpio_glitch_filter_handle_t glitchFilterHandle;
 
             static void IRAM_ATTR isrCallBackFunc(void* data); // Correct declaration
 
@@ -29,8 +33,20 @@ namespace myGpio {
         public:
             Gpio(int pin, gpio_mode_t mode, gpio_pullup_t pullUpEnable, gpio_pulldown_t pullDownEnable, gpio_int_type_t interuptType);
             void init();
-            
+
+
+            /**
+            * @note Installing isr service and adding the specific pin to the interrupt
+            * @attention Setting the clock source to default on the glitch filter
+            * 
+            */
             void attachInterrupt();
+            
+            /**
+            * @note unInstalling isr service and detach the specific pin to the interrupt
+            * @attention Also deleting the glitch filter
+            */
+            void detachInterruptToPin();
             void update();
 
              // Setter functions

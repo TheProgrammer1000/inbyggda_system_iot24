@@ -12,6 +12,7 @@ namespace myGpio {
 
         this->isrHandler = nullptr;
         this->IsrArg = nullptr;
+        this->glitchFilterHandle = nullptr;
 
         this->isrServiceInstalled = false;
         this->gpioInterruptTriggered = false;
@@ -51,5 +52,26 @@ namespace myGpio {
         }
         
         ESP_ERROR_CHECK(gpio_isr_handler_add((gpio_num_t)this->pin, Gpio::isrCallBackFunc, this));
+
+
+        gpio_pin_glitch_filter_config_t glitchFilterConf;
+
+        glitchFilterConf.gpio_num = (gpio_num_t)this->pin;
+        glitchFilterConf.clk_src = GLITCH_FILTER_CLK_SRC_DEFAULT;
+
+        ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&glitchFilterConf, &glitchFilterHandle));
+
+    }
+    
+
+    void Gpio::detachInterruptToPin() {
+        if(isrServiceInstalled == true) {
+            ESP_ERROR_CHECK(gpio_isr_handler_remove((gpio_num_t)this->pin));
+            ESP_ERROR_CHECK(gpio_del_glitch_filter(glitchFilterHandle));
+            gpio_uninstall_isr_service();
+        }
+        else {
+            PRINTF_COLOR(ANSI_YELLOW, "No isr handler is attached to this pin: %d" NEW_LINE, this->pin);
+        }
     }
 }
