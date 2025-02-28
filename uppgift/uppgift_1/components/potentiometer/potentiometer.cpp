@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "adc_one.h"
+#include "potentiometer.h"
 
 
 

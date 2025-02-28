@@ -1,7 +1,7 @@
 #pragma once
 #include "printer.h"
 #include "binary_led.h"
-#include "adc_one.h"
+#include "potentiometer.h"
 #include <stdio.h>
 #include <cmath>         // for sin() and M_PI
 #define BUFFER_SIZE 5
