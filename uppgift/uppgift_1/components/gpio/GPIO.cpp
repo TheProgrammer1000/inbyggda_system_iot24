@@ -32,26 +32,12 @@ namespace myGpio {
         gpio_dump_io_configuration(stdout, (1UL << this->pin));
     }
 
-
-    void IRAM_ATTR Gpio::isrCallBackFunc(void* data) {
-        // ISR implementation
-        // Cast the data pointer back to your Gpio instance
-        Gpio* instance = static_cast<Gpio*>(data);
-        // Now you can modify member variables, e.g.,
-        instance->gpioInterruptTriggered = true;
-
-        //esp_rom_printf("Hello from ISR! gpioInterruptTriggered set to: %d\n",  instance->gpioInterruptTriggered);
-    
-    }
-
-    void Gpio::attachInterrupt() {
+    void Gpio::attachInterruptToPin(void (*isrCallBackFunc)(void *data), void* arg) {
         // Install the ISR service if it hasn't been installed already.
         if (!isrServiceInstalled) {
             ESP_ERROR_CHECK(gpio_install_isr_service(0));
             isrServiceInstalled = true;
         }
-        
-        ESP_ERROR_CHECK(gpio_isr_handler_add((gpio_num_t)this->pin, Gpio::isrCallBackFunc, this));
 
 
         gpio_pin_glitch_filter_config_t glitchFilterConf;
@@ -60,7 +46,9 @@ namespace myGpio {
         glitchFilterConf.clk_src = GLITCH_FILTER_CLK_SRC_DEFAULT;
 
         ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&glitchFilterConf, &glitchFilterHandle));
+        
 
+        ESP_ERROR_CHECK(gpio_isr_handler_add((gpio_num_t)this->pin, isrCallBackFunc, arg));
     }
     
 

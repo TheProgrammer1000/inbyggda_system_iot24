@@ -4,7 +4,7 @@
 #include "analog_led.h"
 #include "binary_led.h"
 #include "led_controller.h"
-//#include "bit_bang.h"
+#include "bit_bang.h"
 #include "GPIO.h"
 
 
@@ -17,14 +17,23 @@ extern "C" void app_main(void)
     gpioTransmitt.init();
     gpioRecieve.init();
 
-    gpioRecieve.attachInterrupt();
 
-    printf("gpioRecieve level: %d\n",gpio_get_level((gpio_num_t)gpioRecieve.getPin()));
+    
+   
 
-    //gpio_set_level((gpio_num_t)gpioTransmitt.getPin(), 1);
-    //vTaskDelay(pdMS_TO_TICKS(1000));
-    //gpio_set_level((gpio_num_t)gpioTransmitt.getPin(), 1);
+    // myBitBang::bitBang bitbang(gpioTransmitt, gpioRecieve);
+    
+    // gpioRecieve.attachInterruptToPin(bitbang.isrCallBackFunc, &bitbang);
 
+
+    // bitbang.init(1000);
+    // bitbang.task_init();
+
+    // bitbang.sendCommandB();
+
+
+
+    //printf("gpioRecieve pin: %d\n",bitbang.);
 
 
     while(1) {
@@ -35,7 +44,7 @@ extern "C" void app_main(void)
 
 
 
-    // myBitBang::bitBang bitbang(gpioTransmitt, gpioRecieve);
+
 
     // printf("bitbang pin has pin: %d\n", bitbang.getGpioReciever().getPin());
 

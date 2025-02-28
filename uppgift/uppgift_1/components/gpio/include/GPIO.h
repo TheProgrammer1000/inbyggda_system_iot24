@@ -40,7 +40,7 @@ namespace myGpio {
             * @attention Setting the clock source to default on the glitch filter
             * 
             */
-            void attachInterrupt();
+            void attachInterruptToPin(void (*isrCallBackFunc)(void *data), void* arg);
             
             /**
             * @note unInstalling isr service and detach the specific pin to the interrupt
@@ -62,6 +62,8 @@ namespace myGpio {
             gpio_pullup_t getPullUpEnable() const { return pullUpEnable; }
             gpio_pulldown_t getPullDownEnable() const { return pullDownEnable; }
             gpio_int_type_t getInterruptType() const { return interuptType; }
+
+            bool getGpioInterruptTriggered() const {return gpioInterruptTriggered; }
 
     };
 }
