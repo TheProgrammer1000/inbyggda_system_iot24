@@ -6,7 +6,8 @@
 
 namespace adcOneMode {  
 
-    adc::adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode) : unitId(unitId), clkSrc(clkSrc), ulpMode(ulpMode) {
+    adc::adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode, adc_channel_t adcChannel, adc_bitwidth_t adcBithWidth,  adc_atten_t adcAttenDB) 
+    : unitId(unitId), clkSrc(clkSrc), ulpMode(ulpMode), adcChannel(adcChannel), adcBithWidth(adcBithWidth), adcAttenDB(adcAttenDB) {
         threshold_cb = NULL;
 
         this->threshold = 0;
@@ -30,31 +31,28 @@ namespace adcOneMode {
         adc_oneshot_chan_cfg_t channelConf;
         
 
-        channelConf.bitwidth = MY_ADC_BITWITH_BITS;
-        channelConf.atten = MY_ADC_ATTEN;
+        channelConf.bitwidth = this->adcBithWidth;
+        channelConf.atten = this->adcAttenDB;
 
         // ADC_CHANNEL_2
-        ESP_ERROR_CHECK(adc_oneshot_config_channel(this->adcUnitHandle, MY_ADC_CHANNEL, &channelConf));
+        ESP_ERROR_CHECK(adc_oneshot_config_channel(this->adcUnitHandle, this->adcChannel, &channelConf));
         PRINTF_COLOR(ANSI_MAGENTA, "<-------------------------------------------ADC-Config----------------------------------------------->" NEW_LINE)
         PRINTF_GROUP_SUCCESFUL("oneshot mode and channel configuration for ADC worked!" NEW_LINE);
-        PRINTF_GROUP_SUCCESFUL("adc_unit: %d & adc_channel: %d, configuration succed!" NEW_LINE, MY_ADC_UNIT, MY_ADC_CHANNEL);
+        PRINTF_GROUP_SUCCESFUL("adc_unit: %d & adc_channel: %d, configuration succed!" NEW_LINE, MY_ADC_UNIT, this->adcChannel);
         PRINTF_GROUP_SUCCESFUL("GPIO number for ADC is: %d" NEW_LINE, MY_GPIO_ADC);
         PRINTF_COLOR(ANSI_MAGENTA, "<------------------------------------------------------------------------------------------->" NEW_LINE);
+
+
+        adc_cali_curve_fitting_config_t adcCaliConf;
+
+        adcCaliConf.unit_id = this->getUnitId();
+        adcCaliConf.chan = this->adcChannel;
+        adcCaliConf.bitwidth = this->adcBithWidth;
+        adcCaliConf.atten = this->adcAttenDB;
+        
+
+        ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&adcCaliConf, &adcCaliHandle));
     }
-
-
-
-    /*
-            typedef void (*onThreshold_t)(int pin, int value);
-            onThreshold_t onThreshold_cb;
-
-            void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
-
-
-            threshold när den kommer över en visst threshold som user sätter då triggas denna funktion och som ska 
-            printa ut värdet bara. Sen när den kommer under ett visst värde igen och kommer upp då ska den triggas.
-    */
-
 
     void adc::onThreshold() {
         if(threshold_cb != NULL) {
@@ -63,31 +61,23 @@ namespace adcOneMode {
     }
 
     void adc::update() {
-        adc_oneshot_read(this->adcUnitHandle, MY_ADC_CHANNEL, &this->adc_raw_array[0][0]);
-
-
-        /*
+        adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
         
-            int adcAveargeArray[10];
-            int indexCounterFilter;
-        */
-        
-        // int indexOfData = indexCounterFilter % 5;
-        // this->adcAveargeArray[indexCounterFilter] = this->adc_raw_array[0][0];
+        int indexOfData = indexCounterFilter % 5;
+        this->adcAveargeArray[indexOfData] = this->adc_raw_array[0][0];
 
-        // if(indexCounterFilter >= 4) {
-        //     int sum = 0;
-        //     for (int i = 0; i < 5; i++)
-        //     {
-        //         sum += this->adcAveargeArray[i];
-        //     }
+        if(indexCounterFilter >= 4) {
+            int sum = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                sum += this->adcAveargeArray[i];
+            }
 
-        //     int averageResult = sum / 5;
+            int averageResult = sum / 5;
 
-
-                    
-        //     //PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and averageResult: %d" NEW_LINE, MY_ADC_CHANNEL, averageResult);
-        // }
+            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &voltage[0][0]));
+            PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, voltage[0][0]);
+        }
 
 
         if(this->risingEdge == true) {
@@ -115,7 +105,7 @@ namespace adcOneMode {
 
         indexCounterFilter++;
       
-        PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
+        //PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
     }
 
     void adc::setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc) {

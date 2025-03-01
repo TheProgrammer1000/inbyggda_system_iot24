@@ -9,7 +9,7 @@
 #define LEDC_TIMER_NUMBER LEDC_TIMER_0
 #define SPEED_MODE LEDC_LOW_SPEED_MODE
 #define CLOCK_CONFIG LEDC_AUTO_CLK
-#define TIMER_FREQ_HERTZ 1000
+#define TIMER_FREQ_HERTZ 4000
 
 
 
@@ -20,14 +20,13 @@ namespace myAnalogLed {
         ledc_mode_t speedMode;
         ledc_timer_t timerNumber;
         uint32_t timerFrequenceHertz;
-        ledc_clk_cfg_t clockConfig;
         ledc_timer_bit_t dutyResolution;
         bool deconfigure;
 
         // @brief Channel
         int gpioNumber;
         ledc_channel_t channel;
-        uint32_t dutyRange;
+        uint32_t dutyPeekForSineWave;
         int hpoint;
         ledc_sleep_mode_t sleepMode;
         //unsigned int outInvert;
@@ -57,13 +56,12 @@ namespace myAnalogLed {
         * 
         * @attention if you want to change these call setter before init()
         */
-        analogLed(int gpioNumber, ledc_channel_t channel, ledc_timer_bit_t dutyResolution, uint32_t dutyRange, ledc_intr_type_t interruptType);
+       analogLed(int gpioNumber, ledc_timer_t timerNumber, ledc_channel_t channel, ledc_timer_bit_t dutyResolution, uint32_t dutyPeekForSineWave, ledc_intr_type_t interruptType);
    
         // Getters  Timer
         ledc_mode_t getSpeedMode() const { return speedMode; }
         ledc_timer_t getTimerNumber() const { return timerNumber; }
         uint32_t getTimerFrequenceHertz() const { return timerFrequenceHertz; }
-        ledc_clk_cfg_t getClockConfig() const { return clockConfig; }
         ledc_timer_bit_t getDutyResolution() const { return dutyResolution; }
         bool getDeconfigure() const { return deconfigure; }
 
@@ -71,7 +69,6 @@ namespace myAnalogLed {
         void setSpeedMode(ledc_mode_t mode) { speedMode = mode; }
         void setTimerNumber(ledc_timer_t number) { timerNumber = number; }
         void setTimerFrequenceHertz(uint32_t frequency) { timerFrequenceHertz = frequency; }
-        void setClockConfig(ledc_clk_cfg_t config) { clockConfig = config; }
         void setDutyResolution(ledc_timer_bit_t resolution) { dutyResolution = resolution; }
         void setDeconfigure(bool value) { deconfigure = value; }
 
@@ -81,8 +78,8 @@ namespace myAnalogLed {
         ledc_channel_t getChannel() const { return channel; }
         void setChannel(ledc_channel_t ch) { channel = ch; }
     
-        uint32_t getDutyRange() const { return dutyRange; }
-        void setDutyRange(uint32_t duty) { dutyRange = duty; }
+        uint32_t getDutyRange() const { return dutyPeekForSineWave; }
+        void setDutyRange(uint32_t duty) { dutyPeekForSineWave = duty; }
 
         ledc_intr_type_t getInterruptType() const { return interruptType; }
         void setInterruptType(ledc_intr_type_t intrType) { interruptType = intrType; }

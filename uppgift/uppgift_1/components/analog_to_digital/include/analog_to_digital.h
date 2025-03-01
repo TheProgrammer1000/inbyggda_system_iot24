@@ -20,7 +20,6 @@ using namespace std;
 #define MY_ADC_BITWITH_BITS ADC_BITWIDTH_12
 #define MY_ADC_ATTEN ADC_ATTEN_DB_12
 
-#define MY_ADC_CHANNEL ADC_CHANNEL_2
 #define MY_GPIO_ADC 2
 
 
@@ -41,9 +40,18 @@ namespace adcOneMode {
             adc_atten_t atten;
             adc_bitwidth_t bitwidth;
 
+            adc_channel_t adcChannel;
+            adc_cali_handle_t adcCaliHandle;
+
+            adc_bitwidth_t adcBithWidth;
+            adc_atten_t adcAttenDB;
+            
+
+
         public:
-            adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode);
+            adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode, adc_channel_t adcChannel, adc_bitwidth_t adcBithWidth,  adc_atten_t adcAttenDB);
             int adc_raw_array[2][10];
+            int voltage[2][10];
             
             
             int adcAveargeArray[5];
@@ -78,7 +86,7 @@ namespace adcOneMode {
             void calculateAdcAverage(int* adcAveargeArray, int sizeOfArray);
         
             /** @brief This extends to GPIO 2
-            *
+            *   @attention Bit is 12 and atten: 12
             */    
             void init();
             void update();
