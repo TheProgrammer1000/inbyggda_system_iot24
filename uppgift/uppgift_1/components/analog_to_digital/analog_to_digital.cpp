@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "potentiometer.h"
+#include "analog_to_digital.h"
 
 
 
@@ -13,6 +13,8 @@ namespace adcOneMode {
         this->risingEdge = true;
 
         this->thresholdState = false;
+
+        indexCounterFilter = 0;
         
     }
 
@@ -26,6 +28,7 @@ namespace adcOneMode {
         ESP_ERROR_CHECK(adc_oneshot_new_unit(&adcConf, &this->adcUnitHandle));
 
         adc_oneshot_chan_cfg_t channelConf;
+        
 
         channelConf.bitwidth = MY_ADC_BITWITH_BITS;
         channelConf.atten = MY_ADC_ATTEN;
@@ -62,6 +65,31 @@ namespace adcOneMode {
     void adc::update() {
         adc_oneshot_read(this->adcUnitHandle, MY_ADC_CHANNEL, &this->adc_raw_array[0][0]);
 
+
+        /*
+        
+            int adcAveargeArray[10];
+            int indexCounterFilter;
+        */
+        
+        // int indexOfData = indexCounterFilter % 5;
+        // this->adcAveargeArray[indexCounterFilter] = this->adc_raw_array[0][0];
+
+        // if(indexCounterFilter >= 4) {
+        //     int sum = 0;
+        //     for (int i = 0; i < 5; i++)
+        //     {
+        //         sum += this->adcAveargeArray[i];
+        //     }
+
+        //     int averageResult = sum / 5;
+
+
+                    
+        //     //PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and averageResult: %d" NEW_LINE, MY_ADC_CHANNEL, averageResult);
+        // }
+
+
         if(this->risingEdge == true) {
             if(this->threshold_cb != NULL && this->adc_raw_array[0][0] >= this->threshold && this->thresholdState == false) {
                 threshold_cb();
@@ -84,9 +112,10 @@ namespace adcOneMode {
         }
 
         
-        
-        PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
+
+        indexCounterFilter++;
       
+        PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
     }
 
     void adc::setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc) {

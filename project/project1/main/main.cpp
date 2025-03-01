@@ -11,5 +11,8 @@
 
 extern "C" void app_main(void)
 {
-    PRINTF_COLOR(ANSI_BLUE, "HELLO WORLD! " NEW_LINE);   
+    PRINTF_COLOR(ANSI_BLUE, "HELLO WORLD! " NEW_LINE); 
+    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE);
+    
+    adc1.init();
 }

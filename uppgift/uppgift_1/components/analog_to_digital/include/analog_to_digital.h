@@ -1,5 +1,4 @@
 #pragma once
-#include "esp_adc/adc_continuous.h"
 #include "hal/adc_types.h"
 #include <esp_adc/adc_oneshot.h>
 #include "esp_log.h"
@@ -45,7 +44,10 @@ namespace adcOneMode {
         public:
             adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode);
             int adc_raw_array[2][10];
-            int* adcAveargeData;
+            
+            
+            int adcAveargeArray[5];
+            int indexCounterFilter;
 
             int threshold;
             bool risingEdge;
@@ -73,10 +75,7 @@ namespace adcOneMode {
             adc_atten_t getAtten() const {return atten; }
             adc_bitwidth_t getBitwidth() const { return bitwidth; }
 
-
-
-           
-
+            void calculateAdcAverage(int* adcAveargeArray, int sizeOfArray);
         
             /** @brief This extends to GPIO 2
             *
@@ -87,17 +86,6 @@ namespace adcOneMode {
 
             void onThreshold();
             void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
-            //void (int threshold, bool risingEdge,(*onThreshold)(int pin, int value))
-            // setOnThreshold ( int threshold, bool risingEdge, xxx (*onThreshold)(int pin/adc, value, xxx), xxx )
-
-
-            /*
-            
-              void button::setOnPressed(void(*cb)(int pin)) {
-                    onPressed_cb = cb;
-    }   
-            
-            */
 
     };
 }
