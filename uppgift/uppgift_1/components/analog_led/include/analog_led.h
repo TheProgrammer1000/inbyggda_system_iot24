@@ -42,19 +42,7 @@ namespace myAnalogLed {
 
         public:
         /**
-        * @note configuration parameters are set to default in the constructor:
-        *
-        * - LEDC_TIMER =            @b LEDC_TIMER_0
-        *
-        * - TIMER_FREQ_HERTZ =      @b 1000
-        *
-        * - LEDC_CLK =              @b LEDC_AUTO_CLK
-        *
-        * - TIMER_DUTY_RESOLUTION = @b LEDC_TIMER_10_BIT
-        *
-        * - LEDC_DECONFIGURE =      @b FALSE
-        * 
-        * @attention if you want to change these call setter before init()
+        * @note timer must be configure before! and give the timerNumber only!
         */
        analogLed(int gpioNumber, ledc_timer_t timerNumber, ledc_channel_t channel, ledc_timer_bit_t dutyResolution, uint32_t dutyPeekForSineWave, ledc_intr_type_t interruptType);
    
@@ -96,12 +84,7 @@ namespace myAnalogLed {
         void setLed(int setLedValue);
         /**
         * 
-        * @brief Initializes the timer and channel configuration.
-        *
-        * @note Timer_conf variables are already initialized in the constructor.
-        *
-        * @attention This function initializes both the timer and channel.
-        *          Use the timer_conf setter if you need to change the configuration.
+        * @attention Initializes only channel configuration.     
         *
         */
         void init();

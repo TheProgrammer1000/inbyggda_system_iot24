@@ -19,18 +19,6 @@ namespace myAnalogLed {
 
     void analogLed::init() {
 
-      
-
-        /*
-            (5, LEDC_TIMER_0, LEDC_TIMER_13_BIT, 0b1111111111111, LEDC_INTR_DISABLE);
-        */
-
-      
-
-
-        //6, LEDC_TIMER_1, LEDC_CHANNEL_1, LEDC_TIMER_13_BIT,
-
-
         ledc_channel_config_t ledc_channel_conf;
         ledc_channel_conf.gpio_num =            this->gpioNumber;
         ledc_channel_conf.speed_mode =          this->speedMode;
@@ -45,9 +33,7 @@ namespace myAnalogLed {
 
 
         ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel_conf));
-
-
-        // PRINTF_COLOR(ANSI_MAGENTA, "Successfully configured analogLed on pin: %d!" NEW_LINE, this->gpioNumber);
+        PRINTF_COLOR(ANSI_MAGENTA, "Successfully configured analogLed on pin: %d!" NEW_LINE, this->gpioNumber);
 
     }
 
