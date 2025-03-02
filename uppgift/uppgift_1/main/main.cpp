@@ -25,10 +25,16 @@ extern "C" void app_main(void)
 
     myAnalogLed::analogLed analogLed1(5, ledc_timer.timer_num , LEDC_CHANNEL_0, LEDC_TIMER_13_BIT, 0b1111111111111, LEDC_INTR_DISABLE);
     analogLed1.init();
+    //analogLed1.sineWave(pdMS_TO_TICKS(2000));
+
+
+    
 
     while (1)
     {
-
+        PRINTF_COLOR(ANSI_BLUE, "voltage value: %d" NEW_LINE, adc1.getVoltageValueFromLDR());
+        analogLed1.setLed(adc1.getVoltageValueFromLDR());
+        analogLed1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
     }
     

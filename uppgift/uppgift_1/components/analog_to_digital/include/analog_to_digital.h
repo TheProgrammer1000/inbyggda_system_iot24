@@ -92,6 +92,8 @@ namespace adcOneMode {
             void update();
             int getValue();
 
+            int getVoltageValueFromLDR();
+
             void onThreshold();
             void setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc);
 

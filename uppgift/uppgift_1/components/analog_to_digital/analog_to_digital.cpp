@@ -105,7 +105,7 @@ namespace adcOneMode {
 
         indexCounterFilter++;
       
-        //PRINTF_COLOR(ANSI_MAGENTA, "ADC channel: %d and raw data: %d" NEW_LINE, MY_ADC_CHANNEL, this->adc_raw_array[0][0]);
+        //PRINTF_COLOR(ANSI_MAGENTA, "ADC raw data: %d" NEW_LINE, this->adc_raw_array[0][0]);
     }
 
     void adc::setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc) {
@@ -117,5 +117,27 @@ namespace adcOneMode {
 
     int adc::getValue() {
         return this->adc_raw_array[0][0];
+    }
+
+    int adc::getVoltageValueFromLDR() {
+        adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
+        
+        int indexOfData = indexCounterFilter % 5;
+        this->adcAveargeArray[indexOfData] = this->adc_raw_array[0][0];
+
+        if(indexCounterFilter >= 4) {
+            int sum = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                sum += this->adcAveargeArray[i];
+            }
+
+            int averageResult = sum / 5;
+
+            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &voltage[0][0]));
+            //PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, voltage[0][0]);
+        }
+        indexCounterFilter++;
+        return voltage[0][0];
     }
 }
