@@ -10,6 +10,7 @@ set(EXTRA_COMPONENT_DIRS
     "../../uppgift/uppgift_1/components/analog_to_digital"
     "../../uppgift/uppgift_1/components/binary_led"
     "../../uppgift/uppgift_1/components/gpio"
+    "../../uppgift/uppgift_1/components/nvs"
 )
 
 
