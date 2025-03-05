@@ -6,6 +6,8 @@
 namespace myNvs {
     nvs::nvs() {
         this->nvsHandle = NULL;
+        this->deviceName = NULL;
+        this->serialNumber = NULL;
     }
 
     /**
@@ -16,10 +18,12 @@ namespace myNvs {
 
      /*
         Läs in serialNumber och deviceName till arbetsminne
-
-        om det inte finns
+        Om det inte finns så får användaren sätta dessa och göra init igen
+        
      */
     void nvs::init() {
+
+        //ESP_ERROR_CHECK(nvs_flash_erase());
         esp_err_t err = nvs_flash_init();
         if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
         {
@@ -33,27 +37,40 @@ namespace myNvs {
 
         PRINTF_COLOR(ANSI_BLUE, "Successfully configuered NVS default partition" NEW_LINE);
 
-        if(getSerialNumber() != (char*)"Not found") {
-            PRINTF_COLOR(ANSI_BLUE, "Serial number is set" NEW_LINE);
 
-            this->serialNumber = getSerialNumber();
-        }
-        else {
-            PRINTF_COLOR(ANSI_YELLOW, "Serial number is not set!" NEW_LINE);
-        }
 
-        if(getDeviceName() != (char*)"Not found") {
-            PRINTF_COLOR(ANSI_BLUE, "Device name is set" NEW_LINE);
-
-            this->deviceName = getDeviceName();
-        }
-        else {
-            PRINTF_COLOR(ANSI_YELLOW, "Device name is not set!" NEW_LINE);
-        }
-
+        ESP_ERROR_CHECK(nvs_open("nvs", NVS_READWRITE, &this->nvsHandle));
         
-        ESP_ERROR_CHECK(nvs_close(this->nvsHandle));
+        size_t required_size;
+        switch(nvs_get_str(nvsHandle, KEY_SERIAL_NUMBER, NULL, &required_size)) {
+            case ESP_OK:
+                PRINTF_COLOR(ANSI_BLUE, "Retrieved successfully" NEW_LINE);
+                this->serialNumber = (char*) malloc(required_size);
+                nvs_get_str(nvsHandle, KEY_SERIAL_NUMBER, serialNumber, &required_size);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                PRINTF_COLOR(ANSI_RED, "The serial not found on nvs" NEW_LINE);
+                break;
+            default:
+                PRINTF_COLOR(ANSI_RED, "Unhandled error reading nvs" NEW_LINE);
+        }
 
+
+        size_t required_size_2;
+        switch(nvs_get_str(nvsHandle, KEY_DEVICE_NAME, NULL, &required_size_2)) {
+            case ESP_OK:
+                this->deviceName = (char*) malloc(required_size_2);
+                PRINTF_COLOR(ANSI_BLUE, "Retrieved successfully" NEW_LINE);
+                ESP_ERROR_CHECK(nvs_get_str(nvsHandle, KEY_DEVICE_NAME, deviceName, &required_size_2));
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                PRINTF_COLOR(ANSI_RED, "The serial not found on nvs" NEW_LINE);
+                break;
+
+            default:
+                PRINTF_COLOR(ANSI_RED, "Unhandled error reading nvs" NEW_LINE);
+                break;
+        }
     }
 
 
@@ -62,74 +79,33 @@ namespace myNvs {
     /**
     * @brief 
     *
+    * @attention bara returna deviceName
     */
     
     char* nvs::getDeviceName() {
+        return this->deviceName;
+    }
 
-        ESP_ERROR_CHECK(nvs_open("nvs", NVS_READWRITE, &this->nvsHandle));
-        size_t required_size;
-
-        switch(nvs_get_str(nvsHandle, KEY_DEVICE_NAME, NULL, &required_size)) {
-            case ESP_OK:
-                this->deviceName = (char*) malloc(required_size);
-                PRINTF_COLOR(ANSI_BLUE, "Retrieved successfully" NEW_LINE);
-                ESP_ERROR_CHECK(nvs_get_str(nvsHandle, KEY_DEVICE_NAME, deviceName, &required_size));
-                return deviceName;  
-                break;
-            case ESP_ERR_NVS_NOT_FOUND:
-                PRINTF_COLOR(ANSI_RED, "The serial not found on nvs" NEW_LINE);
-                return "Not found";
-                break;
-
-            default:
-                PRINTF_COLOR(ANSI_RED, "Unhandled error reading nvs" NEW_LINE);
-                return "Not found";
-        }
-
-        ESP_ERROR_CHECK(nvs_close(this->nvsHandle));
+    // Bara hämta serialNumber!
+    char* nvs::getSerialNumber() {
+        return this->serialNumber;
     }
 
     // Kopiera in nytt device name till arbetsminne och spara på nvs
     void nvs::setDeviceName(char* deviceName) {
-
-        ESP_ERROR_CHECK(nvs_open("nvs", NVS_READWRITE, &this->nvsHandle));
+        
         // spara på nvs
-        ESP_ERROR_CHECK(nvs_set_str(nvsHandle, KEY_DEVICE_NAME, deviceName));
+        ESP_ERROR_CHECK(nvs_set_str(this->nvsHandle, KEY_DEVICE_NAME, deviceName));
         PRINTF_COLOR(ANSI_BLUE, "Successfully wrote key/value pair to NVS partition" NEW_LINE);
 
-        ESP_ERROR_CHECK(nvs_close(this->nvsHandle));
+        this->deviceName = deviceName;
     }
 
     void nvs::setSerialNumber(char* serialNumber) {
-        ESP_ERROR_CHECK(nvs_open("nvs", NVS_READWRITE, &this->nvsHandle));
 
-        ESP_ERROR_CHECK(nvs_set_str(nvsHandle, KEY_SERIAL_NUMBER, serialNumber));
+        ESP_ERROR_CHECK(nvs_set_str(this->nvsHandle, KEY_SERIAL_NUMBER, serialNumber));
         PRINTF_COLOR(ANSI_BLUE, "Successfully wrote key/value pair to NVS partition" NEW_LINE);
 
-        ESP_ERROR_CHECK(nvs_close(this->nvsHandle));
-    }
-
-    char* nvs::getSerialNumber() {
-
-        ESP_ERROR_CHECK(nvs_open("nvs", NVS_READWRITE, &this->nvsHandle));
-        size_t required_size;
-
-        switch(nvs_get_str(nvsHandle, KEY_SERIAL_NUMBER, NULL, &required_size)) {
-            case ESP_OK:
-                PRINTF_COLOR(ANSI_BLUE, "Retrieved successfully" NEW_LINE);
-                this->serialNumber = (char*) malloc(required_size);
-                nvs_get_str(nvsHandle, KEY_SERIAL_NUMBER, serialNumber, &required_size);
-                return serialNumber;
-                break;
-            case ESP_ERR_NVS_NOT_FOUND:
-                PRINTF_COLOR(ANSI_RED, "The serial not found on nvs" NEW_LINE);
-                return "Not found";
-                break;
-            default:
-                PRINTF_COLOR(ANSI_RED, "Unhandled error reading nvs" NEW_LINE);
-                return "Not found";
-        }
-
-        ESP_ERROR_CHECK(nvs_close(this->nvsHandle));
+        this->serialNumber = serialNumber;
     }
 }
