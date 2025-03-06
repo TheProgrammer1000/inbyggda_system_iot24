@@ -15,7 +15,7 @@ typedef struct {
 } led_t;
 
 // Computes the LED duty based on a sine wave, using led->period.
-uint32_t led_sin(led_t *led) {
+uint32_t led_sin(int period,led_t *led) {
     static TickType_t startTick = 0;
     if (startTick == 0) {
         startTick = xTaskGetTickCount();
@@ -26,7 +26,7 @@ uint32_t led_sin(led_t *led) {
     TickType_t elapsed = now - startTick;
     
     // Calculate phase as a fraction [0, 1) of the period.
-    double phase = fmod((double)elapsed, (double)led->period) / (double)led->period;
+    double phase = fmod((double)elapsed, (double)period) / (double)period;
     
     // Convert phase to an angle (0 to 2π).
     double angle = phase * 2.0 * M_PI;
@@ -42,8 +42,8 @@ uint32_t led_sin(led_t *led) {
 
 // Updates the LED duty by computing the sine value and applying it via LEDC.
 void update(led_t* led) {
-    uint32_t dutyValue = led_sin(led);
-    // Set the duty for the channel stored in the struct.
+    uint32_t dutyValue = led_sin(pdMS_TO_TICKS(2000), led);
+    // // Set the duty for the channel stored in the struct.
     ledc_set_duty(LEDC_LOW_SPEED_MODE, led->channel, dutyValue);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, led->channel);
 }
@@ -83,6 +83,8 @@ void app_main(void)
     };
 
     // Main loop: update the LED every 30ms.
+    //led_sin(3000, &led1);
+
     while(1) {
         update(&led1);
         vTaskDelay(pdMS_TO_TICKS(30));

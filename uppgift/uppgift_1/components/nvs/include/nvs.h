@@ -27,8 +27,11 @@ namespace myNvs {
             nvs();
             void init();
 
-            char* getDeviceName();
-            char* getSerialNumber();
+            size_t sizeOfDeviceName;
+            size_t sizeOfSerialNumber;
+
+            esp_err_t getDeviceName(char** outDeviceName);
+            esp_err_t getSerialNumber(char** outSerialNumber);
             void setDeviceName(char* deviceName); 
             void setSerialNumber (char* serialNumber);
 
