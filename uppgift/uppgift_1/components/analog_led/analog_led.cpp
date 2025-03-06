@@ -43,7 +43,7 @@ namespace myAnalogLed {
      * @param periodInTicks 
      * 
      */
-    uint32_t analogLed::sineWave(double periodInTicks) {
+uint32_t analogLed::sineWave(double periodInTicks) {
         // Store the start tick count (only once)
         if(isLedSet == true) {
             isLedSet = false;
