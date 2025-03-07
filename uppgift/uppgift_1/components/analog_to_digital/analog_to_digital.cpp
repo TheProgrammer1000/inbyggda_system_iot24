@@ -60,6 +60,7 @@ namespace adcOneMode {
         }
     }
 
+
     void adc::update() {
         adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
         
@@ -75,10 +76,18 @@ namespace adcOneMode {
 
             int averageResult = sum / 5;
 
+            
+
             ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &voltage[0][0]));
             PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, voltage[0][0]);
+        
+            
+    
+    
         }
 
+
+       
 
         if(this->risingEdge == true) {
             if(this->threshold_cb != NULL && this->adc_raw_array[0][0] >= this->threshold && this->thresholdState == false) {

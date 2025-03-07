@@ -47,10 +47,16 @@ void task_potentimeter_to_led(void* pvParameter) {
     adc1.init();
     analogLed1.init();
 
+    analogLed1.setLed(100);
+
     while(1) {
-        //adc1.update();
+  
+        
 
         analogLed1.setLed(adc1.getVoltageValueFromLDR());
+
+        // PRINTF_COLOR(ANSI_BLUE, "getVoltageValueFromLDR(): %d" NEW_LINE, adc1.getVoltageValueFromLDR());
+        //
         analogLed1.update();
         vTaskDelay(pdMS_TO_TICKS(30));
     }
@@ -60,9 +66,9 @@ void task_potentimeter_to_led(void* pvParameter) {
 extern "C" void app_main(void)
 {
 
-    xTaskCreate(task_blink_led, "BlinkLed", 4096, NULL, 2, NULL);
+    //xTaskCreate(task_blink_led, "BlinkLed", 4096, NULL, 2, NULL);
 
-    xTaskCreate(task_write_serial, "WriteSerial", 4096, NULL, 3, NULL);
+    //xTaskCreate(task_write_serial, "WriteSerial", 4096, NULL, 3, NULL);
 
     xTaskCreate(task_potentimeter_to_led, "PotentimeterToLed", 4096, NULL, 4, NULL);
 }
