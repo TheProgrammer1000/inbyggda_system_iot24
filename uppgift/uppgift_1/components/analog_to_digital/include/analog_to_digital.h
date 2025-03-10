@@ -96,6 +96,10 @@ namespace adcOneMode {
             void update();
             int getValue();
 
+            /**
+             * @brief return -1 when the average is not done!
+             * 
+             */
             int getVoltageValueFromLDR();
 
             void onThreshold();

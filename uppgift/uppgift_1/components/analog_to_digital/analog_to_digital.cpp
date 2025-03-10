@@ -124,6 +124,7 @@ namespace adcOneMode {
 
     int adc::getVoltageValueFromLDR() {
         adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
+        int currentVoltage = 0;
         
         int indexOfData = (indexCounterFilter % WINDOW_FILTER); // 0 till 19
         this->adcAveargeArray[indexOfData] = this->adc_raw_array[0][0];
@@ -139,15 +140,16 @@ namespace adcOneMode {
 
             int averageResult = sum / WINDOW_FILTER;
             
-            int currentVoltage = 0;
+           
             ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &currentVoltage));
 
             if(abs(currentVoltage - lastStableVolt) <= HYSTERESIS_THRESHOLD) {
                 currentVoltage = lastStableVolt;
             }
             lastStableVolt = currentVoltage;
-
             return currentVoltage;
+
         }
+        return -1;
     }
 }

@@ -18,7 +18,11 @@ extern "C" void app_main(void)
 
     while(1) {
 
-        adc1.update();
+
+        int voltageValue = adc1.getVoltageValueFromLDR();
+        if(voltageValue != -1) {
+            PRINTF_COLOR(ANSI_BLUE, "voltageValue: %d" NEW_LINE, voltageValue);
+        }
         vTaskDelay(pdMS_TO_TICKS(30));
     }
 
