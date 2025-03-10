@@ -4,13 +4,16 @@
 #include "esp_log.h"
 #include "printer.h"
 #include <stdio.h>
-#include <vector>
 #include "freertos/FreeRTOS.h"
-#include <deque>
+#include <cstdlib> 
+#include <cmath>  
 
 
 
 using namespace std;
+
+#define WINDOW_FILTER 20
+#define HYSTERESIS_THRESHOLD 7
 
 #define AVERAGE_ARRAY_SIZE 5
 #define MY_ADC_UNIT ADC_UNIT_1
@@ -51,10 +54,11 @@ namespace adcOneMode {
         public:
             adc(adc_unit_t unitId, adc_oneshot_clk_src_t clkSrc, adc_ulp_mode_t ulpMode, adc_channel_t adcChannel, adc_bitwidth_t adcBithWidth,  adc_atten_t adcAttenDB);
             int adc_raw_array[2][10];
-            int voltage[2][10];
+
+            int lastStableVolt;
             
             
-            int adcAveargeArray[5];
+            int adcAveargeArray[WINDOW_FILTER];
             int indexCounterFilter;
 
             int threshold;

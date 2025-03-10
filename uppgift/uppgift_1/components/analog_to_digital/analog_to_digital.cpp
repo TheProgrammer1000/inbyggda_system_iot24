@@ -64,30 +64,30 @@ namespace adcOneMode {
     void adc::update() {
         adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
         
-        int indexOfData = indexCounterFilter % 5;
+        int indexOfData = (indexCounterFilter % WINDOW_FILTER); // 0 till 19
         this->adcAveargeArray[indexOfData] = this->adc_raw_array[0][0];
 
-        if(indexCounterFilter >= 4) {
+        indexCounterFilter++;
+
+        if(indexOfData >= (WINDOW_FILTER - 1)) {
             int sum = 0;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < WINDOW_FILTER; i++)
             {
                 sum += this->adcAveargeArray[i];
             }
 
-            int averageResult = sum / 5;
-
+            int averageResult = sum / WINDOW_FILTER;
             
+            int currentVoltage = 0;
+            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &currentVoltage));
 
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &voltage[0][0]));
-            PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, voltage[0][0]);
-        
-            
-    
-    
+            if(abs(currentVoltage - lastStableVolt) <= HYSTERESIS_THRESHOLD) {
+                currentVoltage = lastStableVolt;
+            }
+            lastStableVolt = currentVoltage;
+
+            PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, currentVoltage);
         }
-
-
-       
 
         if(this->risingEdge == true) {
             if(this->threshold_cb != NULL && this->adc_raw_array[0][0] >= this->threshold && this->thresholdState == false) {
@@ -109,12 +109,6 @@ namespace adcOneMode {
                 thresholdState = false;
             }   
         }
-
-        
-
-        indexCounterFilter++;
-      
-        //PRINTF_COLOR(ANSI_MAGENTA, "ADC raw data: %d" NEW_LINE, this->adc_raw_array[0][0]);
     }
 
     void adc::setOnThreshold(int threshold, bool risingEdge, onThreshold_t onThreshHoldFunc) {
@@ -131,22 +125,29 @@ namespace adcOneMode {
     int adc::getVoltageValueFromLDR() {
         adc_oneshot_read(this->adcUnitHandle, this->adcChannel, &this->adc_raw_array[0][0]);
         
-        int indexOfData = indexCounterFilter % 5;
+        int indexOfData = (indexCounterFilter % WINDOW_FILTER); // 0 till 19
         this->adcAveargeArray[indexOfData] = this->adc_raw_array[0][0];
 
-        if(indexCounterFilter >= 4) {
+        indexCounterFilter++;
+
+        if(indexOfData >= (WINDOW_FILTER - 1)) {
             int sum = 0;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < WINDOW_FILTER; i++)
             {
                 sum += this->adcAveargeArray[i];
             }
 
-            int averageResult = sum / 5;
+            int averageResult = sum / WINDOW_FILTER;
+            
+            int currentVoltage = 0;
+            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &currentVoltage));
 
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adcCaliHandle, averageResult, &voltage[0][0]));
-            //PRINTF_COLOR(ANSI_MAGENTA, "voltage in mV: %d" NEW_LINE, voltage[0][0]);
+            if(abs(currentVoltage - lastStableVolt) <= HYSTERESIS_THRESHOLD) {
+                currentVoltage = lastStableVolt;
+            }
+            lastStableVolt = currentVoltage;
+
+            return currentVoltage;
         }
-        indexCounterFilter++;
-        return voltage[0][0];
     }
 }

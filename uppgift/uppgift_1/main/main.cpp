@@ -11,36 +11,15 @@
 
 extern "C" void app_main(void)
 {  
-    myNvs::nvs nvs1;
 
-    nvs1.init();
+    adcOneMode::adc adc1(ADC_UNIT_1, ADC_DIGI_CLK_SRC_DEFAULT, ADC_ULP_MODE_DISABLE, ADC_CHANNEL_2, ADC_BITWIDTH_12, ADC_ATTEN_DB_12);
 
-    char* data1;
-    
-    if(nvs1.getDeviceName(&data1) == ESP_OK) {
-        ESP_LOGI("MAIN", "getDeviceName: %s", data1);
-    };
-    
-    // nvs1.setDeviceName("hejsan");
-    // nvs1.setDeviceName("hejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhhhejhhhhhhhhhhhhhhhhhhhh");
-    //nvs1.setDeviceName("TJABA");
+    adc1.init();
 
-    //nvs1.setSerialNumber("aa::bb::cc");
-    //nvs1.setSerialNumber("dd::ee::ffffffff");
+    while(1) {
 
-
-    //data = nvs1.getSerialNumber();
-    //ESP_LOGI("MAIN", "getSerialNumber: %s", data);
-
-    //nvs1.setDeviceName("hejsan");
-
-    //nvs1.setDeviceName("tja");
-
-    //nvs1.setDeviceName("dennisDevice");
-    //nvs1.setSerialNumber("dd::cc::33");
-
-    //nvs1.init();
-
-  
+        adc1.update();
+        vTaskDelay(pdMS_TO_TICKS(30));
+    }
 
 }
