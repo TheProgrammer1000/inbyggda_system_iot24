@@ -16,13 +16,8 @@ void onPressedButton(int pin) {
     PRINTF_COLOR(ANSI_BLUE, "BUTTON PRESSED PIN: %d" NEW_LINE, pin);
 }
 
-
-
-
 extern "C" void app_main(void)
 {
-
-
     ledc_timer_config_t ledcTimerConf;
 
     ledcTimerConf.timer_num = LEDC_TIMER_0;
@@ -42,14 +37,14 @@ extern "C" void app_main(void)
     analogLed1.init();
     adc1.init();
     button1.init();
+    
+    
 
     button1.onPressed_cb = onPressedButton;
 
 
 
     ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup((1UL << button1.get_pin()), ESP_GPIO_WAKEUP_GPIO_HIGH));
-
-    //ESP_ERROR_CHECK(esp_deep_sleep_try_to_start());
 
 
     static TickType_t startTick = xTaskGetTickCount();
@@ -59,25 +54,22 @@ extern "C" void app_main(void)
         TickType_t elaspedTickSinceStart = xTaskGetTickCount();
 
         
-        if(elaspedTickSinceStart - startTick >= pdMS_TO_TICKS(5000)) {
+        if(elaspedTickSinceStart - startTick >= pdMS_TO_TICKS(20000)) {
             
             ESP_ERROR_CHECK(esp_deep_sleep_try_to_start());
-            
-            PRINTF_COLOR(ANSI_MAGENTA, "HERRE" NEW_LINE);
+        
             startTick = xTaskGetTickCount();
         }
 
         button1.update();
 
         int LDRInputResistans = adc1.getVoltageValueFromLDR();
-        
+
         if(LDRInputResistans != -1) {
             analogLed1.setLed(LDRInputResistans);
             analogLed1.update();
         }
 
         vTaskDelay(pdMS_TO_TICKS(30));
-        //analogLed1.update();
     }
-    
 }
