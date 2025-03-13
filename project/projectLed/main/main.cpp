@@ -14,24 +14,59 @@
 void task_movement_sensor_detection(void* pvParameter) {
     
     myGpio::Gpio* gpio6 = (myGpio::Gpio*) pvParameter;
-
     PRINTF_COLOR(ANSI_BLUE, "gpio pin: %d" NEW_LINE, gpio6->getPin());
 
+    QueueHandle_t xQueue1;
+    
+     // Create a queue capable of containing 10 uint32_t values.
+    xQueue1 = xQueueCreate(10, sizeof(uint32_t));
+
+  
+     // Create a queue capable of containing 10 pointers to AMessage structures.
+     // These should be passed by pointer as they contain a lot of data.
+
+
+    int latch = 0;
+
+    int number = 100;
 
     while (1)
     {
         int sensorMovementLevel = gpio_get_level((gpio_num_t) gpio6->getPin());
 
-        if(sensorMovementLevel == 0) {
-            PRINTF_COLOR(ANSI_MAGENTA, "Movement not detected: %d" NEW_LINE, sensorMovementLevel);
+        if(sensorMovementLevel == 0 && latch == 1) {
+            latch = 0;
+
+            
+            if(xQueue1 != 0) {
+                if(xQueueSend(xQueue1, (void*) number, (TickType_t) 10) == pdTRUE) {
+                    PRINTF_COLOR(ANSI_MAGENTA, "SUCCESSFULLY SENT" NEW_LINE);
+                }
+                else {
+                    PRINTF_COLOR(ANSI_RED, "ERROR" NEW_LINE);
+                }
+            }
+            
+            PRINTF_COLOR(ANSI_MAGENTA, "Movement detected!" NEW_LINE);
+
         }
-        else {
-            PRINTF_COLOR(ANSI_MAGENTA, "Movement detected!!: %d" NEW_LINE, sensorMovementLevel);
+        else if(sensorMovementLevel == 1 && latch == 0){
+            latch = 1;
        }
-        //PRINTF_COLOR(ANSI_BLUE,"HELLO!" NEW_LINE);
+        vTaskDelay(pdMS_TO_TICKS(30));
+    }
+}
+
+void task_analogled(void* pvParameter) {
+    myAnalogLed::analogLed* analogled1 = (myAnalogLed::analogLed*) pvParameter;
+
+    while (1)
+    {
         vTaskDelay(pdMS_TO_TICKS(30));
     }
     
+
+
 }
 
 void onPressedButton(int pin) {
@@ -69,6 +104,9 @@ extern "C" void app_main(void)
 
 
     xTaskCreate(task_movement_sensor_detection, "MovmentSensor", 4096, &gpio6, 2, NULL);
+    //xTaskCreate(task_analogled, "Analogled", 4096, &analogLed1, 3, NULL);
+
+
 
     while (1)
     {   
