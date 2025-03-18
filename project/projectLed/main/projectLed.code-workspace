@@ -7,5 +7,10 @@
 			"path": "../../../uppgift/uppgift_1/components"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"ios": "cpp",
+			"*.tcc": "cpp"
+		}
+	}
 }
