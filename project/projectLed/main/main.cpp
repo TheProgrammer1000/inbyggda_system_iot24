@@ -105,6 +105,14 @@ void task_analogled(void* pvParameter) {
 
         TickType_t elaspedTickSinceStart = xTaskGetTickCount();
 
+        int LDRInputResistans = finalObjects->adc1.getVoltageValueFromLDR();
+    
+    
+        if(LDRInputResistans != -1) {
+            finalObjects->analogLed1.setLed(LDRInputResistans);
+            finalObjects->analogLed1.update();
+        }    
+
         if(elaspedTickSinceStart - startTick >= pdMS_TO_TICKS(7000)) {
             PRINTF_COLOR(ANSI_MAGENTA, "In deep sleep" NEW_LINE);
 
