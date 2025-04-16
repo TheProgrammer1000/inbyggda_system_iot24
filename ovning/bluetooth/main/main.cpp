@@ -26,6 +26,9 @@ uint8_t ble_addr_type = 0;
 QueueHandle_t xQueue1;
 char dataFromBuffer[255];
 
+static uint16_t g_conn_handle;
+static uint16_t g_attr_handle_notify;
+
 // Forward declaration
 void ble_app_advertise();
 
@@ -60,6 +63,15 @@ static int device_read(uint16_t conn_handle, uint16_t attr_handle,
     return 0;
 }
 
+static int device_notify(uint16_t conn_handle, uint16_t attr_handle,
+    struct ble_gatt_access_ctxt* ctxt, void* arg) {
+
+        PRINTF_COLOR(ANSI_BLUE, "Successfully posted" NEW_LINE);
+
+        return 0;
+}
+
+
 // Representerar en GATT-service men nuvarande 1 service
 static ble_gatt_svc_def gatt_svcs[2];
 
@@ -89,8 +101,10 @@ static void init_gatt_services() {
 
     characteristics[2].uuid = (ble_uuid_t*)&uuid_notify;
     characteristics[2].flags = BLE_GATT_CHR_F_NOTIFY;
-    characteristics[2].access_cb = nullptr;
+    characteristics[2].access_cb = device_notify;
 
+    characteristics[2].val_handle = &g_attr_handle_notify;
+    // characteristics[2].val_handle = &g_attr_handle_notify;
 
     gatt_svcs[0].characteristics = characteristics;
 
@@ -100,9 +114,14 @@ static void init_gatt_services() {
 static int ble_gap_event(struct ble_gap_event* event, void* arg) {
     switch (event->type) {
         case BLE_GAP_EVENT_CONNECT:
-            
-            PRINTF_COLOR(ANSI_BLUE, "BLE GAP EVENT CONNECT %s", (event->connect.status == 0) ? "OK!" : "FAILED!");
-            ble_app_advertise();
+            if (event->connect.status != 0) {
+                // Connection failed; restart advertising.
+                PRINTF_COLOR(ANSI_BLUE, "BLE GAP EVENT CONNECT FAILED" NEW_LINE);
+                ble_app_advertise();
+            } else {
+                g_conn_handle = event->connect.conn_handle;
+                PRINTF_COLOR(ANSI_BLUE, "BLE GAP EVENT CONNECT OK!" NEW_LINE);
+            }
             break;
 
         case BLE_GAP_EVENT_ADV_COMPLETE:
@@ -121,21 +140,25 @@ void ble_app_advertise() {
     struct ble_hs_adv_fields fields;
     std::memset(&fields, 0, sizeof(fields));
 
-    // Get device name from GAP service.
     const char* device_name = ble_svc_gap_device_name();
     fields.name = reinterpret_cast<uint8_t*>(const_cast<char*>(device_name));
     fields.name_len = std::strlen(device_name);
     fields.name_is_complete = 1;
-    ble_gap_adv_set_fields(&fields);
+    int rc = ble_gap_adv_set_fields(&fields);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "ble_gap_adv_set_fields failed; rc=%d", rc);
+    }
 
-    // Set advertising parameters.
     struct ble_gap_adv_params adv_params;
     std::memset(&adv_params, 0, sizeof(adv_params));
     adv_params.conn_mode = BLE_GAP_CONN_MODE_UND;
     adv_params.disc_mode = BLE_GAP_DISC_MODE_GEN;
 
-    ble_gap_adv_start(ble_addr_type, nullptr, BLE_HS_FOREVER, &adv_params,
-                      ble_gap_event, nullptr);
+    rc = ble_gap_adv_start(ble_addr_type, nullptr, BLE_HS_FOREVER, &adv_params,
+                           ble_gap_event, nullptr);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "ble_gap_adv_start failed; rc=%d", rc);
+    }
 }
 
 // Callback invoked when the BLE host stack is synchronized.
@@ -163,14 +186,22 @@ void task_recieve_message(void *pvParameter) {
         if(xQueueReceive(xQueue1, (void*) &dataFromBuffer, (TickType_t) 10)  == pdTRUE) {
             PRINTF_COLOR(ANSI_BLUE, "dataFromBuffer: %s" NEW_LINE, dataFromBuffer);
 
-            std::string textRecieved = (std::string) dataFromBuffer
-;
+            std::string textRecieved = (std::string) dataFromBuffer;
+            
             std::transform(textRecieved.begin(), textRecieved.end(), textRecieved.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 
         
             if(textRecieved == "on") {
                 PRINTF_COLOR(ANSI_BLUE, "TURN ON THE LED" NEW_LINE);
+
+                const char* myData = "Hello from ESP32!";
+                struct os_mbuf* om = ble_hs_mbuf_from_flat(myData, strlen(myData));
+                int rc = ble_gatts_notify_custom(g_conn_handle, g_attr_handle_notify, om);
+                if (rc != 0) {
+                    ESP_LOGE(TAG, "Failed to notify, rc=%d", rc);
+                }
+
                 gpio_set_level(gpio_num_t(binaryLed1->getPin()), 1);
            
             }
@@ -195,10 +226,10 @@ extern "C" void app_main() {
     // Initialize NVS.
     nvs_flash_init();
     // Initialize the NimBLE stack.
-    nimble_port_init();
+    ESP_ERROR_CHECK(nimble_port_init());
 
     // Set device name and initialize GAP and GATT services.
-    ble_svc_gap_device_name_set("BLE-Server");
+    ESP_ERROR_CHECK(ble_svc_gap_device_name_set("BLE-Server"));
     ble_svc_gap_init();
     ble_svc_gatt_init();
 
