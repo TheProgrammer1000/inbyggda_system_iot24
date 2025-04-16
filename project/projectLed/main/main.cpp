@@ -111,7 +111,7 @@ void task_analogled(void* pvParameter) {
         if(LDRInputResistans != -1) {
             finalObjects->analogLed1.setLed(LDRInputResistans);
             finalObjects->analogLed1.update();
-        }    
+           }    
 
         if(elaspedTickSinceStart - startTick >= pdMS_TO_TICKS(7000)) {
             PRINTF_COLOR(ANSI_MAGENTA, "In deep sleep" NEW_LINE);
