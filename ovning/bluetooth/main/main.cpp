@@ -33,7 +33,7 @@ static uint16_t g_attr_handle_notify;
 void ble_app_advertise();
 
 // Callback: Write data to the server (from the client)
-static int device_write(uint16_t conn_handle, uint16_t attr_handle,
+static int recieve_data_from_client(uint16_t conn_handle, uint16_t attr_handle,
                         struct ble_gatt_access_ctxt* ctxt, void* arg) {
 
     PRINTF_COLOR(ANSI_MAGENTA, "Data from the client: %.*s" NEW_LINE, ctxt->om->om_len, ctxt->om->om_data);
@@ -56,7 +56,7 @@ static int device_write(uint16_t conn_handle, uint16_t attr_handle,
 }
 
 // Callback: Read data from the server (to the client)
-static int device_read(uint16_t conn_handle, uint16_t attr_handle,
+static int send_to_client(uint16_t conn_handle, uint16_t attr_handle,
                        struct ble_gatt_access_ctxt* ctxt, void* arg) {
     const char* msg = "Data from the server";
     os_mbuf_append(ctxt->om, msg, std::strlen(msg));
@@ -93,11 +93,11 @@ static void init_gatt_services() {
     std::memset(characteristics, 0, sizeof(characteristics));
     characteristics[0].uuid = (ble_uuid_t*)&uuid_read;
     characteristics[0].flags = BLE_GATT_CHR_F_READ;
-    characteristics[0].access_cb = device_read;
+    characteristics[0].access_cb = send_to_client;
     
     characteristics[1].uuid = (ble_uuid_t*)&uuid_write;
     characteristics[1].flags = BLE_GATT_CHR_F_WRITE;
-    characteristics[1].access_cb = device_write;
+    characteristics[1].access_cb = recieve_data_from_client;
 
     characteristics[2].uuid = (ble_uuid_t*)&uuid_notify;
     characteristics[2].flags = BLE_GATT_CHR_F_NOTIFY;
@@ -177,9 +177,6 @@ extern "C" void host_task(void* param) {
 void task_recieve_message(void *pvParameter) {
 
     myBinaryLed::binaryLed* binaryLed1 = (myBinaryLed::binaryLed*)pvParameter;
-
-
-   
 
     while(1) {
 
