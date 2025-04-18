@@ -18,6 +18,7 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include "sdkconfig.h"
 #include "binary_led.h"
+#include "analog_led.h"
 
 
 static constexpr const char* TAG = "BLE-Server";
@@ -220,30 +221,47 @@ extern "C" void app_main() {
     myBinaryLed::binaryLed* binaryLed1 = new myBinaryLed::binaryLed(3, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_ENABLE, GPIO_INTR_DISABLE);
     binaryLed1->init();
 
-    // Initialize NVS.
-    nvs_flash_init();
-    // Initialize the NimBLE stack.
-    ESP_ERROR_CHECK(nimble_port_init());
+    ledc_timer_config_t ledcTimerConf;
+    ledcTimerConf.freq_hz = 4000;
+    ledcTimerConf.clk_cfg = LEDC_AUTO_CLK;
+    ledcTimerConf.duty_resolution = LEDC_TIMER_12_BIT;
+    ledcTimerConf.speed_mode = LEDC_LOW_SPEED_MODE;
+    ledcTimerConf.timer_num = LEDC_TIMER_0;
+    //ledcTimerConf.deconfigure = false;
+    ledcTimerConf.deconfigure = false;
 
-    // Set device name and initialize GAP and GATT services.
-    ESP_ERROR_CHECK(ble_svc_gap_device_name_set("BLE-Server"));
-    ble_svc_gap_init();
-    ble_svc_gatt_init();
+    ESP_ERROR_CHECK(ledc_timer_config(&ledcTimerConf));
 
-    // Initialize our GATT service definitions.
-    init_gatt_services();
+    myAnalogLed::analogLed* analogLed1 = new myAnalogLed::analogLed(6,  ledcTimerConf.timer_num, LEDC_CHANNEL_0, ledcTimerConf.duty_resolution, 0b111111111111, LEDC_INTR_DISABLE);
 
-    // Count and add GATT services.
-    ble_gatts_count_cfg(gatt_svcs);
-    ble_gatts_add_svcs(gatt_svcs);
+    analogLed1->init();
+    analogLed1->setLed(4095);
+    analogLed1->update();
 
-    // Set the sync callback.
-    ble_hs_cfg.sync_cb = ble_app_on_sync;
+    // // Initialize NVS.
+    // nvs_flash_init();
+    // // Initialize the NimBLE stack.
+    // ESP_ERROR_CHECK(nimble_port_init());
 
-    // Launch the NimBLE host task.
-    nimble_port_freertos_init(host_task);
+    // // Set device name and initialize GAP and GATT services.
+    // ESP_ERROR_CHECK(ble_svc_gap_device_name_set("BLE-Server"));
+    // ble_svc_gap_init();
+    // ble_svc_gatt_init();
 
-    xQueue1 = xQueueCreate(10, sizeof(uint_least64_t));
+    // // Initialize our GATT service definitions.
+    // init_gatt_services();
 
-    xTaskCreate(task_recieve_message, "taskRecieveCommand", 4096, (void*)binaryLed1, 2, NULL);
+    // // Count and add GATT services.
+    // ble_gatts_count_cfg(gatt_svcs);
+    // ble_gatts_add_svcs(gatt_svcs);
+
+    // // Set the sync callback.
+    // ble_hs_cfg.sync_cb = ble_app_on_sync;
+
+    // // Launch the NimBLE host task.
+    // nimble_port_freertos_init(host_task);
+
+    // xQueue1 = xQueueCreate(10, sizeof(uint_least64_t));
+
+    // xTaskCreate(task_recieve_message, "taskRecieveCommand", 4096, (void*)binaryLed1, 2, NULL);
 }

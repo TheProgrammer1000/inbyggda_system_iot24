@@ -9,6 +9,8 @@ set(EXTRA_COMPONENT_DIRS
     "../../uppgift/uppgift_1/components/printer"
     "../../uppgift/uppgift_1/components/nvs"
     "../../uppgift/uppgift_1/components/binary_led"
+    "../../uppgift/uppgift_1/components/analog_led"
+    "../../uppgift/uppgift_1/components/analog_to_digital"
 )
 
 
