@@ -1,0 +1,4 @@
+.devcontainer
+sdkconfig.ci*
+sdkconfig.defaults
+.DS_Store
